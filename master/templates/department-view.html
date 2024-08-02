@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>KWARTZ</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta content="" name="description" />
+    <meta content="" name="keywords" />
+    <link href="assets/img/favicon.png" rel="icon" />
+
+    <!-- Google Fonts Nunito & Poppins -->
+    <link href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+
+    <!-- Icon Sets -->
+    <link href="{% static 'css/bootstrap-icons.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/boxicons.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/remixicon.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/quill.snow.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/quill.bubble.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/lateststyle.css' %}" />
+    <!-- dataTable Responsive -->
+    <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/responsive.dataTables.min.css' %}" />
+  </head>
+
+  <body>
+    <header id="header" class="header fixed-top d-flex align-items-center">
+      <div class="d-flex align-items-center justify-content-between">
+
+        <i class="bi bi-list toggle-sidebar-btn"></i>
+      </div>
+      <nav class="header-nav ms-auto">
+        <ul class="d-flex align-items-center">
+          <li class="nav-item d-block d-lg-none">
+            <a class="nav-link nav-icon search-bar-toggle" href="#">
+              <i class="bi bi-search"></i>
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+              <i class="bi bi-bell"></i>
+              <span class="badge bg-primary badge-number">4</span>
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+              <i class="bi bi-chat-left-text"></i>
+              <span class="badge bg-success badge-number">3</span>
+            </a>
+          </li>
+          <li class="nav-item dropdown pe-3">
+            <a
+              class="nav-link nav-profile d-flex align-items-center pe-0"
+              href="#"
+              data-bs-toggle="dropdown"
+            >
+              <img
+                src="{% static 'img/profile-img.jpg' %}"
+                alt="Profile"
+                class="rounded-circle"
+              />
+              <span class="d-none d-md-block dropdown-toggle ps-2">Jassa</span>
+            </a>
+            <ul
+              class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile"
+            >
+              <li class="dropdown-header">
+                <h6>Jassa</h6>
+                <span>Admin Assistant</span>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a
+                  class="dropdown-item d-flex align-items-center"
+                  href="users-profile.html"
+                >
+                  <i class="bi bi-person"></i> <span>My Profile</span>
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a
+                  class="dropdown-item d-flex align-items-center"
+                  href="../profile/change-password.html"
+                >
+                  <i class="bi bi-eye"></i> <span>Change Password</span>
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a
+                  class="dropdown-item d-flex align-items-center"
+                  href="users-profile.html"
+                >
+                  <i class="bi bi-gear"></i> <span>Account Settings</span>
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a
+                  class="dropdown-item d-flex align-items-center"
+                  href="pages-faq.html"
+                >
+                  <i class="bi bi-question-circle"></i> <span>Need Help?</span>
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                  <i class="bi bi-box-arrow-right"></i> <span>Sign Out</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <aside id="sidebar" class="sidebar">
+      <ul class="sidebar-nav" id="sidebar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="bi bi-grid"></i> <span>Dashboard</span></a
+          >
+        </li>
+        <!-- Masters nav-iems start here-->
+        <li class="nav-item">
+          <a
+            class="nav-link collapsed"
+            data-bs-target="#master-nav"
+            data-bs-toggle="collapse"
+            href="#"
+          >
+            <i class="bi bi-menu-button-wide"></i> <span>Master</span
+            ><i class="bi bi-chevron-down ms-auto"></i>
+          </a>
+
+          <ul
+            id="master-nav"
+            class="nav-content collapse"
+            data-bs-parent="#sidebar-nav"
+          >
+
+            <li>
+              <a href="{% url 'department_list' %}">
+                <i class="bi bi-circle"></i><span>Department</span>
+              </a>
+            </li>
+            <li>
+              <a href="master/mix.html">
+                <i class="bi bi-circle"></i><span>Designation</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="master/designation.html">
+                <i class="bi bi-circle"></i><span>Locations</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <!-- Masters nav-iems ends here-->
+
+        <!-- User -->
+
+        <!-- ncr -->
+
+        <!-- Callibration nav-item -->
+
+      </ul>
+    </aside>
+    <main id="main" class="main">
+      <div class="pagetitle">
+        <h1>Department View</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+            <li class="breadcrumb-item">Master</li>
+            <li class="breadcrumb-item active">Department</li>
+          </ol>
+        </nav>
+      </div>
+      <section class="section">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="card border border-primary p-4">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="col-lg-4">
+                      DEPARTMENT
+                    </th>
+                    <td class="col-lg-8"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="col-lg-4">Department Name</th>
+                    <td class="col-lg-8">{{ department.department_name }}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="col-lg-4">Description</th>
+                    <td class="col-lg-8">{{ department.description }}</td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+            
+        <div class="d-flex justify-content-center">
+          <a href="{% url 'department_list' %}">
+            <button class="btn btn-outline-success">
+              <i class="bi bi-arrow-left-square me-1"></i>Back
+            </button>
+          </a>
+        </div>
+      </section>
+      <div class="spacex mb-5"></div>
+    </main>
+    <footer id="footer" class="footer">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Datahub Technologies</span></strong
+        >. All Rights Reserved
+      </div>
+    </footer>
+    <a
+      href="#"
+      class="back-to-top d-flex align-items-center justify-content-center"
+      ><i class="bi bi-arrow-up-short"></i
+    ></a>
+
+    <script src="{% static 'js/apexcharts.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/chart.min.js' %}"></script>
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+    <script src="{% static 'js/quill.min.js' %}"></script>
+    <script src="{% static 'js/tinymce.min.js' %}"></script>
+    <script src="{% static 'js/validate.js' %}"></script>
+    <!-- Responsive DataTable start here -->
+    <script src="{% static 'js/jquery-3.5.1.js' %}"></script>
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'js/dataTables.responsive.min.js' %}"></script>
+    <!-- Responsive DataTable ends here -->
+    <!-- init file start here -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <!-- init file ends here -->
+  </body>
+</html>
