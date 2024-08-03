@@ -171,13 +171,13 @@
               </a>
             </li>
             <li>
-              <a href="master/mix.html">
+              <a href="{% url 'designation_list' %}">
                 <i class="bi bi-circle"></i><span>Designation</span>
               </a>
             </li>
 
             <li>
-              <a href="master/designation.html">
+              <a href="{% url 'location_list' %}">
                 <i class="bi bi-circle"></i><span>Location</span>
               </a>
             </li>
@@ -234,7 +234,7 @@
                     >Description<span class="text-danger">*</span></label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input type="text" class="form-control" id="description" name="description" placeholder="Enter Discription" required
+                    <input type="text" class="form-control" id="description" name="description" placeholder="Enter Description" required
                     />
                 </div>
                 </div>

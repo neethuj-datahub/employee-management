@@ -1,18 +1,16 @@
 from django import forms
-from .models import Department,Designation
+from .models import Department,Designation,Location
 
 
+#----------------------------department---------------------------------------
 
 class DepartmentForm(forms.ModelForm):
     class Meta:
         model = Department
-        fields = ['department_name', 'description']  # List the fields you want to include
+        fields = ['department_name', 'description'] 
 
+#----------------------------designation---------------------------------------
 
-# class DesignationForm(forms.ModelForm):
-#     class Meta:
-#         model = Designation
-#         fields = ['designation_name', 'description', 'department']  # List the fields you want to include
 class DesignationForm(forms.ModelForm):
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
@@ -23,3 +21,11 @@ class DesignationForm(forms.ModelForm):
     class Meta:
         model = Designation
         fields = ['designation_name', 'description', 'department']
+
+#----------------------------location---------------------------------------
+
+class LocationForm(forms.ModelForm):
+    class Meta:
+        model = Location
+        fields = ['location_name', 'description']  
+

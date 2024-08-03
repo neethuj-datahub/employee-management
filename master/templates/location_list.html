@@ -196,12 +196,12 @@
     </aside>
     <main id="main" class="main">
       <div class="pagetitle">
-        <h1>Designations</h1>
+        <h1>Locations</h1>
         <nav>
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
             <li class="breadcrumb-item">Master</li>
-            <li class="breadcrumb-item active">Designations</li>
+            <li class="breadcrumb-item active">Locations</li>
           </ol>
         </nav>
       </div>
@@ -213,13 +213,13 @@
                 <div class="card-title">
                   <div class="d-lg-flex">
                     <div>
-                      <h5 class="card-heading">List of Designations</h5>
+                      <h5 class="card-heading">List of Locations</h5>
                     </div>
                     <div class="ms-auto my-auto mt-lg-0 mt-4">
                       <div class="ms-auto my-auto">
-                        <a href="{% url 'designation_add' %}">
+                        <a href="{% url 'location_add' %}">
                           <button type="button" class="btn btn-success">
-                            <i class="bi bi-plus-circle me-1"></i> Add Designation
+                            <i class="bi bi-plus-circle me-1"></i> Add Location
                           </button>
                         </a>
                         <a href="#bulkUploadModal" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
@@ -227,7 +227,7 @@
                               <i class="bi bi-upload"></i> Bulk Upload
                           </button>
                         </a>
-                        <a href="{% url 'export_designations' %}">
+                        <a href="{% url 'export_locations' %}">
                           <button type="button" class="btn btn-success">
                             <i class="bi bi-download"></i> Export
                           </button>
@@ -247,18 +247,16 @@
                       <th scope="col" class="text-md dt-nowrap">Sl.No</th>
                       <th scope="col" class="text-md dt-nowrap">Actions</th>
                       <th scope="col" class="text-md dt-nowrap">
-                        Designations Name
+                        Location Name
                       </th>
                       <th scope="col" class="text-md dt-nowrap">
                         Description
                       </th>
-                      <th scope="col" class="text-md dt-nowrap">
-                        Department
-                      </th>
+                     
                     </tr>
                   </thead>
                   <tbody>
-                    {% for desig in designations %}
+                    {% for loc in locations %}
                     <tr>
                       <th scope="row">{{ forloop.counter }}</th>
                       <td
@@ -266,7 +264,7 @@
                         style="min-height: 100% !important; min-width: 100%"
                       >
                         <div class="d-flex">
-                          <a href="{% url 'designation_edit' desig.designation_id %}">
+                          <a href="{% url 'location_edit' loc.location_id %}">
                             <button
                               type="button"
                               class="btn btn-outline-info"
@@ -277,7 +275,7 @@
                               <i class="bi bi-pencil-fill"></i>
                             </button> </a
                           >&nbsp;
-                          <a href="{% url 'designation_view' desig.designation_id %}">
+                          <a href="{% url 'location_view' loc.location_id %}">
                             <button
                               type="button"
                               class="btn btn-outline-success"
@@ -293,7 +291,7 @@
                             class="btn btn-outline-danger"
                             data-bs-toggle="modal"
                             data-bs-target="#deleteModal"
-                            data-designation-id="{{ desig.designation_id }}"
+                            data-location-id="{{ loc.location_id }}"
                             title="Delete"
                           >
                             <i class="bi bi-trash-fill"></i>
@@ -303,13 +301,11 @@
 
                         </div>
                       </td>
-                      <td class="dt-nowrap">{{ desig.designation_name }}</td>
+                      <td class="dt-nowrap">{{ loc.location_name }}</td>
                       <td class="dt-nowrap">
-                        {{ desig.description }}
+                        {{ loc.description }}
                       </td>
-                      <td class="dt-nowrap">
-                        {{ desig.department_name }}
-                      </td>
+                      
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -357,7 +353,7 @@
           </div>
           <!-- End of message content -->
           <div class="modal-footer">
-            <form id="deleteForm" method="post" action="{% url 'designation_delete' 0 %}">
+            <form id="deleteForm" method="post" action="{% url 'location_delete' 0 %}">
               {% csrf_token %}
               <button type="submit" class="btn btn-outline-danger">Delete</button>
             </form>
@@ -387,7 +383,7 @@
               </div>
               <div class="modal-body">
                   <!-- Form for file upload -->
-                  <form method="post" enctype="multipart/form-data" action="{% url 'designation_bulk_upload' %}">
+                  <form method="post" enctype="multipart/form-data" action="{% url 'location_bulk_upload' %}">
                       {% csrf_token %}
                       <div class="mb-3">
                           <label for="uploadFile" class="form-label">Upload File</label>
@@ -395,9 +391,14 @@
                       </div>
                       <button type="submit" class="btn btn-primary">Upload</button>
                   </form>
+                  {% if error_message %}
+                    <div style="color: red; margin-top: 20px;">
+                        <strong>Error:</strong> {{ error_message }}
+                    </div>
+                  {% endif %}
                   <hr>
                   <!-- Download Template button -->
-                  <a href="{% url 'designation_download_template' %}" class="btn btn-secondary">
+                  <a href="{% url 'download_location_template' %}" class="btn btn-secondary">
                       <i class="bi bi-download"></i> Download Template
                   </a>
               </div>
@@ -413,10 +414,10 @@
           // Button that triggered the modal
           var button = event.relatedTarget;
           // Extract info from data-* attributes
-          var designationId = button.getAttribute('data-designation-id');
+          var locationId = button.getAttribute('data-location-id');
           // Update the form action URL
           var form = deleteModal.querySelector('form');
-          form.action = "{% url 'designation_delete' 0 %}".replace('0', designationId);
+          form.action = "{% url 'location_delete' 0 %}".replace('0', locationId);
         });
       });
     </script>

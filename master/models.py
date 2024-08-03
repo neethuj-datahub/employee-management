@@ -16,7 +16,7 @@ class TimeStampedModel(models.Model):
     
     class Meta:
         abstract = True
-
+#--------------------------------------------models for master ------------------------------------------------------------
 class Department(TimeStampedModel):
     department_id = models.AutoField(primary_key=True)
     department_name = models.CharField(max_length=100)
@@ -25,19 +25,28 @@ class Department(TimeStampedModel):
     class Meta:
         db_table = 'department'
 
-    
-    
     def get_instance(self):
         return self
 
 
 class Designation(TimeStampedModel):
     designation_id = models.AutoField(primary_key=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department,  on_delete=models.PROTECT,)
     designation_name = models.CharField(max_length=100)
     description =  models.TextField()
 
     class Meta:
         db_table = 'designation'
+    def get_instance(self):
+        return self
+    
+class Location(TimeStampedModel):
+    location_id = models.AutoField(primary_key=True)
+    location_name = models.CharField(max_length=100)
+    description = models.TextField()
+    
+    class Meta:
+        db_table = 'location'
+
     def get_instance(self):
         return self

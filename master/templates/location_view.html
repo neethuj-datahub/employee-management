@@ -190,12 +190,12 @@
     </aside>
     <main id="main" class="main">
       <div class="pagetitle">
-        <h1>Department View</h1>
+        <h1>Location View</h1>
         <nav>
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
             <li class="breadcrumb-item">Master</li>
-            <li class="breadcrumb-item active">Department</li>
+            <li class="breadcrumb-item active">Location</li>
           </ol>
         </nav>
       </div>
@@ -207,17 +207,17 @@
                 <tbody>
                   <tr>
                     <th scope="row" class="col-lg-4">
-                      DEPARTMENT
+                    Location
                     </th>
                     <td class="col-lg-8"></td>
                   </tr>
                   <tr>
-                    <th scope="row" class="col-lg-4">Department Name</th>
-                    <td class="col-lg-8">{{ department.department_name }}</td>
+                    <th scope="row" class="col-lg-4">Location Name</th>
+                    <td class="col-lg-8">{{ location.location_name }}</td>
                   </tr>
                   <tr>
                     <th scope="row" class="col-lg-4">Description</th>
-                    <td class="col-lg-8">{{ department.description }}</td>
+                    <td class="col-lg-8">{{ location.description }}</td>
                   </tr>
                   
                 </tbody>
@@ -225,7 +225,7 @@
             </div>
             
         <div class="d-flex justify-content-center">
-          <a href="{% url 'department_list' %}">
+          <a href="{% url 'location_list' %}">
             <button class="btn btn-outline-success">
               <i class="bi bi-arrow-left-square me-1"></i>Back
             </button>

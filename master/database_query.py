@@ -11,6 +11,8 @@ def get_all_departments():
         departments = [{'department_id': row[0], 'department_name': row[1], 'description': row[2]} for row in rows]
     return departments
 
+#---------------- funtion to get all designation details ------------------------------------------------------
+
 def get_all_designations():
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -26,7 +28,15 @@ def get_all_designations():
                 department dep ON d.department_id = dep.department_id
         """)
         rows = cursor.fetchall() 
-        print("DESIG :",rows)
         designations = [{'designation_id': row[0], 'designation_name': row[1], 'description': row[2], 'department_id' : row[3],'department_name': row[4]} for row in rows]
     
     return designations
+
+#---------------- funtion to get all location details ------------------------------------------------------
+
+def get_all_locations():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT location_id, location_name, description FROM location")
+        rows = cursor.fetchall() 
+        locations = [{'location_id': row[0], 'location_name': row[1], 'description': row[2]} for row in rows]
+    return locations
