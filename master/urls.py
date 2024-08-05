@@ -11,7 +11,7 @@ urlpatterns = [
     
     #-------------------------- URLS OF DEPARTMENT------------------------------------------------------------------
 
-    path('departments/', views.department_list, name='department_list'),
+    path('department_list/', views.department_list, name='department_list'),
     path('department_add/', views.department_add, name='department_add'),
     path('department_edit/<int:department_id>/', views.department_edit, name='department_edit'),
     path('department_view/<int:department_id>/', views.department_view, name='department_view'),

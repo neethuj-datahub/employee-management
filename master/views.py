@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect , get_object_or_404
-from .database_query import get_all_departments,get_all_designations,get_all_locations
+from .database_query import get_all_departments,get_all_designations,get_all_locations,get_departments
 from datetime import datetime
 from django.db import connection
 from django.contrib import messages
@@ -22,6 +22,7 @@ from io import BytesIO
 
 
 
+
 def dashboard(request):
     return render(request, 'dashboard.html')
 
@@ -29,9 +30,16 @@ def dashboard(request):
 
 # ---------------------- LIST DEPARTMENT FUNCTION --------------------------------------
 
+# def department_list(request):
+#     departments = get_all_departments()
+#     return render(request, 'department_list.html', {'departments': departments})
 def department_list(request):
-    departments = get_all_departments()
-    return render(request, 'department_list.html', {'departments': departments})
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Handle AJAX request for server-side processing
+        return get_all_departments(request)
+    
+    # Handle normal page request
+    return render(request, 'department_list.html')
 
 #--------------------- Add Department ----------------------------------------------------
 
@@ -142,7 +150,8 @@ def bulk_upload(request):
 
 def export_departments(request):
     # Use the get_all_departments function to retrieve the department data
-    departments = get_all_departments()
+    departments = get_departments()
+    print("Department",departments)
     for index, department in enumerate(departments, start=1):
         department['Sl.No'] = index
     # Convert the data to a DataFrame
@@ -168,7 +177,7 @@ def export_departments(request):
 
 def designation_list(request):
     designations = get_all_designations()
-    departments_all = get_all_departments()
+    departments_all = get_all_departments(request)
     return render(request, 'designation_list.html', {'designations': designations})
 
 #--------------------- Add Designation ----------------------------------------------------
