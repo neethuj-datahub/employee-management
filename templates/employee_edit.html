@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+{% extends 'index.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+   
+</head>
+<body>
+    <main id="main" class="main">
+        <div class="pagetitle">
+          <h1>Edit Employee</h1>
+        </div>
+        <section class="section">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card border border-primary p-4">
+                <h5 class="card-heading">
+                  Edit The Details Of Employee :
+                </h5>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <label for="join date"
+                          class="col-md-4 col-lg-3 col-form-label">Join_date<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                          
+                            {{ form.join_date }}
+                            {{ form.join_date.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Employee Number<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.employee_no }}
+                            {{ form.employee_no.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Name<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Phone<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.phone }}
+                            {{ form.phone.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Emp Start Date<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.emp_start_date }}
+                            {{ form.emp_start_date.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Emp End Date<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.emp_end_date }}
+                            {{ form.emp_end_date.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Photo<span class="text-danger">*</span></label>
+                       
+                          <div class="col-md-8 col-lg-9">
+                            <!-- Show existing photo URL if it exists -->
+                            {% if existing_photo %}
+                                <div class="mb-2">
+                                    <p>Current photo path: <a href="{{ existing_photo.url }}" target="_blank">{{ existing_photo.url }}</a></p>
+                                </div>
+                            {% else %}
+                                <p>No photo available.</p>
+                            {% endif %}
+                            
+                            <!-- File input for uploading a new photo -->
+                            {{ form.photo }}
+                            {{ form.photo.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Status<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.status }}
+                            {{ form.status.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Department<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.department }}
+                            {{ form.department.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Designation<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.designation }}
+                            {{ form.designation.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="department Name"
+                          class="col-md-4 col-lg-3 col-form-label">Location<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.location }}
+                            {{ form.location.errors }}
+                        </div>
+                      </div>
+                      <h4>Skills</h4>
+                      <div id="skills-formset">
+                          {{ formset.management_form }}
+                          {% for form in formset %}
+                              <div class="skill-form">
+                                  {{ form.skill_id }}  <!-- Hidden input for skill_id -->
+                                  <div class="row mb-3">
+                                      <label class="col-md-4 col-lg-3 col-form-label">Skill Name</label>
+                                      <div class="col-md-8 col-lg-9">
+                                          {{ form.skill_name }}
+                                          {{ form.skill_name.errors }}
+                                      </div>
+                                  </div>
+                                  <div class="row mb-3">
+                                      <label class="col-md-4 col-lg-3 col-form-label">Skill Description</label>
+                                      <div class="col-md-8 col-lg-9">
+                                          {{ form.description }}
+                                          {{ form.description.errors }}
+                                      </div>
+                                  </div>
+                                
+                              </div>
+                          {% endfor %}
+                      </div>
+                     
+                      
+                    
+                    <button type="submit" class ="btn btn-primary">Save</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center">
+            <a href="{% url 'employee_list' %}">
+              <button class="btn btn-outline-success">
+                <i class="bi bi-arrow-left-square me-1"></i>Back
+              </button>
+            </a>
+          </div>
+        </section>
+        <div class="spacex mb-5"></div>
+      </main>
+
+      <script type="text/javascript">
+        $(document).ready(function () {
+          $('#department-dropdown').change(function () {
+            var url = "{% url 'designations_of_department' %}";
+            var departmentId = $(this).val();
+            console.log("departmentId",departmentId)
+
+            $.ajax({
+                url: url,
+                data: {
+                    'department_id': departmentId
+                },
+                success: function (data) {
+                    $('#designation-dropdown').html('');
+                    $.each(data, function (key, value) {
+                        $('#designation-dropdown').append('<option value="' + value.designation_id + '">' + value.designation_name + '</option>');
+                    });
+                }
+            });
+        });
+            $('#id_join_date').datepicker({
+                
+                dateFormat: 'yy-mm-dd'
+            });
+            
+           
+        });
+    </script>
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('add-more-skill').addEventListener('click', function() {
+            var formIdx = document.getElementById('id_form-TOTAL_FORMS').value;
+            var newForm = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, formIdx);
+            document.getElementById('skills-formset').insertAdjacentHTML('beforeend', newForm);
+            document.getElementById('id_form-TOTAL_FORMS').value = parseInt(formIdx) + 1;
+        });
+    
+        document.getElementById('skills-formset').addEventListener('click', function(event) {
+            if (event.target.classList.contains('delete-skill')) {
+                event.target.closest('.skill-form').remove();
+            }
+        });
+    });
+    
+  </script>
+  <script type="text/template" id="empty-form">
+    <div class="skill-form">
+        <input type="hidden" name="form-__prefix__-id" id="id_form-__prefix__-id">
+        <div class="row mb-3">
+            <label class="col-md-4 col-lg-3 col-form-label">Skill Name</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" name="form-__prefix__-skill_name" class="form-control" required id="id_form-__prefix__-skill_name">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-4 col-lg-3 col-form-label">Skill Description</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" name="form-__prefix__-description" class="form-control" required id="id_form-__prefix__-description">
+            </div>
+        </div>
+    </div>
+</script>
+  
+    
+</body>
+</html>
+{% endblock %}

@@ -43,5 +43,11 @@ urlpatterns = [
     path('location_bulk_upload/', views.location_bulk_upload, name='location_bulk_upload'),
     path('export_locations/', views.export_locations, name='export_locations'),
 
+    #-------------------------- URLS OF EMPLOYEE------------------------------------------------------------------
 
+    path('employee_list', views.employee_list, name='employee_list'),
+    path('employee_add', views.employee_add, name='employee_add'),
+    path('designations_of_department', views.designations_of_department, name='designations_of_department'),
+    path('employee_edit/<str:employee_id>/', views.employee_edit, name='employee_edit'),
+    
 ]

@@ -1,5 +1,6 @@
 from django.db import connection
 from django.http import JsonResponse
+from django.conf import settings
 
 
 #---------------- funtion to get all department details ------------------------------------------------------
@@ -219,3 +220,92 @@ def location_list_query(start_index, page_length, search_value, draw):
         "data": location_list
     }
     return response
+
+#---------------- funtion to get all employee details ------------------------------------------------------
+
+def employee_list_query(start_index, page_length, search_value, draw):
+    # Set default values if start_index or page_length are None
+    start_index = start_index if start_index is not None else 0
+    page_length = page_length if page_length is not None else 10
+    
+    # Convert to integers and handle possible conversion errors
+    try:
+        start_index = int(start_index)
+        page_length = int(page_length)
+    except ValueError:
+        start_index = 0
+        page_length = 10
+    
+    script1 = ''' 
+    SELECT 
+        e.employee_id, e.join_date, e.employee_no, e.name, e.phone, e.address, 
+        e.emp_start_date, e.emp_end_date, e.photo, e.status,
+        d.department_name, ds.designation_name, l.location_name
+    FROM employee e
+    LEFT JOIN department d ON e.department_id = d.department_id
+    LEFT JOIN designation ds ON e.designation_id = ds.designation_id
+    LEFT JOIN location l ON e.location_id = l.location_id
+    WHERE e.name <> 'ALL'
+    '''
+    
+    script2 = ''' 
+    SELECT COUNT(*) FROM employee e
+    LEFT JOIN department d ON e.department_id = d.department_id
+    LEFT JOIN designation ds ON e.designation_id = ds.designation_id
+    LEFT JOIN location l ON e.location_id = l.location_id
+    WHERE e.name <> 'ALL'
+    '''
+    
+    if search_value:
+        search_script = " AND e.name LIKE %s"
+        script1 += search_script
+        script2 += search_script
+
+    script1 += " ORDER BY e.name ASC LIMIT %s OFFSET %s;"
+
+    with connection.cursor() as cursor:
+        if search_value:
+            cursor.execute(script1, ('%' + search_value + '%', page_length, start_index))
+        else:
+            cursor.execute(script1, (page_length, start_index))
+        employees = cursor.fetchall()
+
+        if search_value:
+            cursor.execute(script2, ('%' + search_value + '%',))
+        else:
+            cursor.execute(script2)
+        total_records = cursor.fetchone()[0]
+
+    employee_list = []
+    sl_no = start_index + 1
+
+    for row in employees:
+        employee = {
+            'sl_no': sl_no,
+            'employee_id': row[0],
+            'join_date': row[1],
+            'employee_no': row[2],
+            'name': row[3],
+            'phone': row[4],
+            'address': row[5],
+            'emp_start_date': row[6],
+            'emp_end_date': row[7],
+            'photo': settings.MEDIA_URL + row[8],
+            'status': row[9],
+            'department_name': row[10],
+            'designation_name': row[11],
+            'location_name': row[12],
+        }
+        employee_list.append(employee)
+        sl_no += 1
+
+    filtered_records = total_records
+
+    response = {
+        "draw": draw,
+        "recordsTotal": total_records,
+        "recordsFiltered": filtered_records,
+        "data": employee_list
+    }
+    return response
+

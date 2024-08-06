@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect , get_object_or_404
-from .database_query import get_all_departments,get_all_locations,get_departments,designation_list_query,get_designations,location_list_query
+from .database_query import get_all_departments,get_all_locations,get_departments,designation_list_query,get_designations,location_list_query,employee_list_query
 from datetime import datetime
 from django.db import connection
 from django.contrib import messages
-from .models import Department,Designation,Location # Import your model
+from .models import Department,Designation,Location, Skills,Employee # Import your model
 from django.contrib.auth.decorators import login_required
-from .forms import DepartmentForm,DesignationForm,LocationForm
+from .forms import DepartmentForm,DesignationForm,LocationForm,EmployeeForm,SkillFormSet
 import os
 from django.conf import settings
 from django.contrib.staticfiles import finders
@@ -154,7 +154,6 @@ def bulk_upload(request):
 def export_departments(request):
     # Use the get_all_departments function to retrieve the department data
     departments = get_departments()
-    print("Department",departments)
     for index, department in enumerate(departments, start=1):
         department['Sl.No'] = index
     # Convert the data to a DataFrame
@@ -178,28 +177,24 @@ def export_departments(request):
 
 # ---------------------- List Designation --------------------------------------
 
-# def designation_list(request):
-#     designations = get_all_designations()
-#     departments_all = get_all_departments(request)
-#     return render(request, 'designation_list.html', {'designations': designations})
+def designations_of_department(request):
+    department_id = request.GET.get('department_id')
+    designations = Designation.objects.filter(department=department_id).all()
+    return JsonResponse(list(designations.values('designation_id', 'designation_name')), safe=False)
 @csrf_exempt
 
 def designation_list(request):
     if request.method == "GET":
-        print("hi")
         template_name = 'designation_list.html'
-        print("HEY")
         return render(request, template_name, )
 
     if request.method == "POST":
-        print("postttttttttttttt")
         start_index = request.POST.get('start')
         page_length = request.POST.get('length')
         search_value = request.POST.get('search[value]')
         draw = request.POST.get('draw')
        
         des = designation_list_query(start_index, page_length, search_value, draw)
-        print("DES",des)
         return JsonResponse(des)
 
 #--------------------- Add Designation ----------------------------------------------------
@@ -593,4 +588,95 @@ def export_locations(request):
         df.to_excel(writer, index=False, sheet_name='Locations')
 
     return response
+
+#-------------------------EMPLOYEE------------------------------------------------------------------------
+
+# ---------------------- LIST EMPLOYEE FUNCTION --------------------------------------
+
+@csrf_exempt
+def employee_list(request):
+    if request.method == "GET":
+        template_name = 'employee_list.html'
+       
+        return render(request, template_name, )
+
+    if request.method == "POST":
+        start_index = request.POST.get('start')
+        page_length = request.POST.get('length')
+        search_value = request.POST.get('search[value]')
+        draw = request.POST.get('draw')
+       
+        emp = employee_list_query(start_index, page_length, search_value, draw)
+       
+        return JsonResponse(emp)
+    
+
+# ---------------------- Add Employee --------------------------------------
+
+def employee_add(request):
+    form = EmployeeForm
+    formset = SkillFormSet(queryset=Skills.objects.none())
+    template_name = 'employee_add.html'
+    context = {'form': form, 'formset': formset}
+   
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST, request.FILES)
+
+        formset = SkillFormSet(request.POST, queryset=Skills.objects.none())
+        if form.is_valid() and formset.is_valid():
+            data = form.save(commit=False)
+            data.created_by = request.user
+            data.save()
+            
+            
+            for skill_form in formset:
+                skill = skill_form.save(commit=False)
+                skill.employee = data
+                skill.save()
+            messages.success(request, 'Employee Added Successfully', 'alert-success')
+            return redirect('employee_list')
+            
+        else:
+            messages.error(request, 'Data is not valid.', extra_tags='alert-danger')
+            context = {'form': form,'formset': formset}
+            return render(request, template_name, context)
+    else :
+        return render(request, template_name, context)
+    
+# ---------------------- Edit Employee --------------------------------------
+
+
+def employee_edit(request,employee_id):
+    employee_instance = get_object_or_404(Employee, employee_id=employee_id)
+    template_name = 'employee_edit.html'
+   
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST, request.FILES, instance=employee_instance)
+        formset = SkillFormSet(request.POST, queryset=Skills.objects.filter(employee=employee_instance))
+        
+        if form.is_valid() :
+         
+            employee = form.save(commit=False)
+            employee.updated_at = datetime.now()
+            employee.updated_by = request.user
+            employee.save()
+           
+            if formset.is_valid():
+                for i in formset:
+                  
+                    skill = i.save()
+                    skill.employee = employee
+                    skill.save()
+             
+            messages.success(request, 'Employee Successfully Updated.', 'alert-success')
+            return redirect('employee_list')
+        else:
+          
+            messages.error(request, 'Data is not valid.', 'alert-danger')
+    else:
+        form = EmployeeForm(instance=employee_instance)
+        formset = SkillFormSet(queryset=Skills.objects.filter(employee=employee_instance))
+    
+    context = {'form': form, 'formset': formset, 'employee_instance': employee_instance,'existing_photo': employee_instance.photo}
+    return render(request, template_name, context)
 

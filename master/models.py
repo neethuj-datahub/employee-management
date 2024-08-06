@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 
 
 # master/models.py
@@ -25,8 +26,8 @@ class Department(TimeStampedModel):
     class Meta:
         db_table = 'department'
 
-    def get_instance(self):
-        return self
+    def __str__(self):
+        return str(self.department_name) 
 
 
 class Designation(TimeStampedModel):
@@ -37,8 +38,8 @@ class Designation(TimeStampedModel):
 
     class Meta:
         db_table = 'designation'
-    def get_instance(self):
-        return self
+    def __str__(self):
+        return str(self.designation_name) 
     
 class Location(TimeStampedModel):
     location_id = models.AutoField(primary_key=True)
@@ -48,5 +49,41 @@ class Location(TimeStampedModel):
     class Meta:
         db_table = 'location'
 
-    def get_instance(self):
-        return self
+    def __str__(self):
+        return str(self.location_name) 
+
+
+class Employee(TimeStampedModel):
+    employee_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    join_date = models.DateField(null=True, blank=True)
+    employee_no = models.IntegerField(null=True, blank=True)
+    name = models.CharField(max_length=255,null=True, blank=True)
+    phone = models.CharField(max_length=255,null=True, blank=True)
+    address = models.CharField(max_length=255,null=True, blank=True)
+    emp_start_date = models.DateField(null=True, blank=True)
+    emp_end_date = models.DateField(null=True, blank=True)
+    photo = models.ImageField(upload_to='employee_photos/', null=True, blank=True)
+    status = models.CharField(max_length=50)
+    department = models.ForeignKey(Department, max_length=250, null=True, blank=True, related_name='emp_dep',
+                             on_delete=models.SET_NULL)
+    designation = models.ForeignKey(Designation, max_length=250, null=True, blank=True, related_name='emp_des',
+                             on_delete=models.SET_NULL)
+    location = models.ForeignKey(Location, max_length=250, null=True, blank=True, related_name='emp_loc',
+                             on_delete=models.SET_NULL)
+    
+    class Meta:
+        db_table = 'employee'
+    def __str__(self):
+        return str(self.name)    
+    
+
+class Skills(models.Model):
+    skill_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    employee = models.ForeignKey(Employee, related_name='skills', on_delete=models.CASCADE)
+    skill_name = models.CharField(max_length=100,null=True, blank=True)
+    description = models.CharField(max_length=255,null=True, blank=True)
+
+    class Meta:
+        db_table = 'skills'
+    def __str__(self):
+        return str(self.skill_name)   

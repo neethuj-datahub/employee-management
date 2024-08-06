@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+{% extends 'index.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee List</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+        .select-checkbox {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Employee</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+                    <li class="breadcrumb-item">Master</li>
+                    <li class="breadcrumb-item active">Employee List</li>
+                </ol>
+            </nav>
+        </div>
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card border border-primary">
+                        <div class="card-body">
+                            <div class="card-title">
+                                <div class="d-lg-flex">
+                                    <div>
+                                        <h5 class="card-heading">List Of Employee</h5>
+                                    </div>
+                                    <div class="ms-auto my-auto mt-lg-0 mt-4">
+                                        <div class="ms-auto my-auto">
+                                          <a href="{% url 'employee_add' %}">
+                                            <button type="button" class="btn btn-success">
+                                              <i class="bi bi-plus-circle me-1"></i> Add Employee
+                                            </button>
+                                          </a>
+                                          <a href="#bulkUploadModal" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
+                                            <button type="button" class="btn btn-success">
+                                                <i class="bi bi-upload"></i> Bulk Upload
+                                            </button>
+                                          </a>
+                                          <a href="{% url 'export_departments' %}">
+                                            <button type="button" class="btn btn-success">
+                                              <i class="bi bi-download"></i> Export
+                                            </button>
+                                          </a>
+                                          
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="display responsive nowrap" style="width: 100%" id="empTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="text-md dt-nowrap">
+                                            <input type="checkbox" id="select_all"> Select All
+                                        </th>
+                                        <th scope="col" class="text-md dt-nowrap">Sl.No</th>
+                                        <th scope="col" class="text-md dt-nowrap">Action</th>
+                                        <th scope="col" class="text-md dt-nowrap">Employee No</th>
+                                        <th scope="col" class="text-md dt-nowrap">Name</th>
+                                        <th scope="col" class="text-md dt-nowrap">Department</th>
+                                        <th scope="col" class="text-md dt-nowrap">Designation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                       
+                        <!-- Add select all checkbox and download button -->
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    
+                                     
+                                    <button type="button" class="btn btn-primary" id="download_selected">Download Selected</button>
+                                    <span id="rowCount">0 employees selected</span> <!-- Added line for count display -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="spacex mb-5"></div>
+    </main>
+
+    <!-- Modal for Upload -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload Excel File</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="files">Choose Excel files</label>
+                            <input type="file" id="files" name="files" class="form-control" multiple>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for sending email -->
+    <div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailModalLabel">Send Employee PDF</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="employeeId">
+                    <div class="form-group">
+                        <label for="recipientEmail">Recipient Email</label>
+                        <input type="email" id="recipientEmail" class="form-control" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="sendEmailBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+    <script>
+        $(document).ready(function () {
+            var selectedEmployeeIds = new Set();
+            var unselect=new Set();
+            var exclude=new Set();
+            var alllist=new Set();
+            var new_total= [];
+            var new_list_count=[];
+           
+            
+            function updateSelectedCount() {
+                var selectAllChecked = $('#select_all').is(':checked');
+                if (selectAllChecked){
+                   
+                    console.log(new_total[0],"new_total")
+                    new_list_count.push(new_total[0])
+                   
+                    $('#rowCount').text(new_total[0] + ' employees selected');
+                }
+                else{
+                    
+                    if (new_list_count.length !=0){
+                        var new_count=new_list_count[0]-unselect.size
+                        $('#rowCount').text(new_count + ' employees selected');}  
+                    
+                    else{
+                        console.log(new_total[0]-unselect.size,"unselect")
+                        $('#rowCount').text(selectedEmployeeIds.size + ' employees selected');
+                    }
+            }
+        }
+    
+
+        
+            $('#download_selected').click(function () {
+                if (selectedEmployeeIds.size === 0) {
+                    alert('No employees selected');
+                    return;
+                }
+                var selectAllChecked = $('#select_all').is(':checked');
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    data: {
+                        'employee_ids': JSON.stringify(Array.from(selectedEmployeeIds)), 
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'select_all': selectAllChecked,
+                        'unselect':JSON.stringify(Array.from(unselect)), 
+                        'alllist':JSON.stringify(Array.from(alllist)),
+                    },
+                    success: function (response) {
+                        window.location.href = response.download_url;
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    },
+                    error: function (error) {
+                        alert('Error downloading selected employees');
+                    }
+                });
+            });
+
+            function LoadTable() {
+                if ($.fn.DataTable.isDataTable('#empTable')) {
+                    $('#empTable').DataTable().clear().destroy();
+                }
+              
+                $('#empTable').DataTable({
+                   
+                    "serverSide": true,
+                    "aLengthMenu":[[10, 25, 50], [10, 25, 50]],
+                    "paging": true,
+                    "ordering": false,
+                    "pageLength": 10,
+                    "sPaginationType": "full_numbers",
+                    "scrollX": false,
+                    "processing": true,
+                    "language": { "processing": 'Loading......!' },
+                    "ajax": {
+                        "url": "{% url 'employee_list' %}",
+                        "type": "POST",
+                        "dataType": "json",
+                        "data": function (d) {
+                            d.csrfmiddlewaretoken = '{{ csrf_token }}';
+                        },
+                        error: function (e) {
+                            $("#myTable tbody").empty().append('<tr class="odd"><td valign="top" colspan="16" class="dataTables_empty">ERROR</td></tr>');
+                        }
+                    },
+                  
+                    "columns": [
+                        {
+                            "data": function (row, type, val, meta) {
+                               
+                                var checked = $('#select_all').prop('checked') ? 'checked' : '';
+                                console.log(checked,"checked")
+                                return '<input type="checkbox" class="emp_checkbox" data-id="' + row.employee_id + '" ' + checked + '>';
+                               
+                               
+                            },
+                            "orderable": false,
+                        },
+                        { "data": "sl_no" },
+                        {
+                            "data": function (row, type, val, meta) {
+                                var editUrlPattern = "{% url 'employee_edit' 0 %}";
+                                var viewUrlPattern = "";
+                                var varButtons = "";
+                                var editUrl = editUrlPattern.replace('0', row.employee_id);
+                                var viewUrl = viewUrlPattern.replace('0', row.employee_id);
+                                var varButtons = "";
+                                varButtons = `
+                                    <div class="d-flex">
+                                        <a href="${editUrl}" class="me-1">
+                                            <button type="button" class="btn btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                        </a>&nbsp;
+                                        <a href="${viewUrl}" class="me-1">
+                                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Details">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                        </a>&nbsp;
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-location-id="${row.location_id}" title="Delete">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>&nbsp;
+                                    </div>
+                                 `;
+
+                                 return varButtons;
+                            }
+                        },
+                        { "data": "employee_no" },
+                        { "data": "name" },
+                        { "data": "department_name" },
+                        { "data": "designation_name" },
+                    ],
+                    "drawCallback": function () {
+                        $('#empTable_paginate ul.pagination').addClass("pagination-rounded");
+                        var api = this.api();
+                        var total = api.ajax.json().recordsTotal;
+                        new_total.push(total)
+                        var allChecked = true;
+                        var table = $('#empTable').DataTable();
+                        table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                           
+                            var data = this.data();
+                            if (!selectedEmployeeIds.has(data.employee_id)) {
+                                allChecked = false;
+                                return false;  
+                            }
+                        });
+                        $('#select_all').prop('checked', allChecked);
+                        updateSelectedCount(); // Update count on table redraw
+                    }
+                });
+            }
+
+            function updateSelectedIds() {
+                // Update hidden input value with selectedEmployeeIds
+                $('#selected_employee_ids').val(JSON.stringify(Array.from(selectedEmployeeIds)));
+               
+            }
+
+            $('#select_all').on('click', function () {
+                var isChecked = $(this).is(':checked');
+                var table = $('#empTable').DataTable();
+            
+                if (isChecked) {
+                    // Add all employee IDs to selectedEmployeeIds
+                    table.rows({ search: 'applied' }).every(function (rowIdx, tableLoop, rowLoop) {
+                        var data = this.data();
+                       
+                        console.log(alllist,"alllist")
+                        alllist.add(1)
+                        selectedEmployeeIds.add(data.employee_id);
+                    });
+                    $('input.emp_checkbox').prop('checked', true);
+                } else {
+                    // Clear selectedEmployeeIds
+                    table.rows({ search: 'applied' }).every(function (rowIdx, tableLoop, rowLoop) {
+                        var data = this.data();
+                        selectedEmployeeIds.delete(data.employee_id);
+                    });
+                    $('input.emp_checkbox').prop('checked', false);
+                }
+                updateSelectedIds();
+                updateSelectedCount(); 
+            });
+            
+            
+            // Handle individual row checkboxes
+            $(document).on('change', 'input.emp_checkbox', function () {
+                var employeeId = $(this).data('id');
+                console.log(employeeId,"employeeId")
+                if ($(this).is(':checked')) {
+                    selectedEmployeeIds.add(employeeId);
+                } else {
+                    selectedEmployeeIds.delete(employeeId);
+                    $('#select_all').prop('checked', false); 
+                    unselect.add(employeeId) 
+                    console.log(unselect,"unselect")// Uncheck "Select All" if any checkbox is unchecked
+                }
+                updateSelectedCount(); // Update count on individual checkbox change
+            });
+
+            $(document).ready(function() {
+                LoadTable();
+                updateSelectedIds();
+                updateSelectedCount(); // Initial count update
+            });
+            // Handle email modal
+            $('#emailModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var employeeId = button.data('employee-id');
+                var employeeName = button.data('employee-name');
+                var modal = $(this);
+                modal.find('.modal-title').text('Send PDF for ' + employeeName);
+                modal.find('#employeeId').val(employeeId);
+            });
+
+            $('#sendEmailBtn').click(function () {
+                var employeeId = $('#employeeId').val();
+                var recipientEmail = $('#recipientEmail').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '', // Add your actual URL here
+                    data: {
+                        'employee_id': employeeId,
+                        'email': recipientEmail,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        alert('Email sent successfully');
+                        $('#emailModal').modal('hide');
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        alert('Error sending email');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
