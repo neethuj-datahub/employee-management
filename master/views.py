@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect , get_object_or_404
-from .database_query import get_all_departments,get_all_designations,get_all_locations,get_departments
+from .database_query import get_all_departments,get_all_locations,get_departments,designation_list_query,get_designations,location_list_query
 from datetime import datetime
 from django.db import connection
 from django.contrib import messages
@@ -18,6 +18,9 @@ import openpyxl
 from openpyxl.styles import PatternFill
 from django.http import HttpResponse
 from io import BytesIO
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 
@@ -175,10 +178,29 @@ def export_departments(request):
 
 # ---------------------- List Designation --------------------------------------
 
+# def designation_list(request):
+#     designations = get_all_designations()
+#     departments_all = get_all_departments(request)
+#     return render(request, 'designation_list.html', {'designations': designations})
+@csrf_exempt
+
 def designation_list(request):
-    designations = get_all_designations()
-    departments_all = get_all_departments(request)
-    return render(request, 'designation_list.html', {'designations': designations})
+    if request.method == "GET":
+        print("hi")
+        template_name = 'designation_list.html'
+        print("HEY")
+        return render(request, template_name, )
+
+    if request.method == "POST":
+        print("postttttttttttttt")
+        start_index = request.POST.get('start')
+        page_length = request.POST.get('length')
+        search_value = request.POST.get('search[value]')
+        draw = request.POST.get('draw')
+       
+        des = designation_list_query(start_index, page_length, search_value, draw)
+        print("DES",des)
+        return JsonResponse(des)
 
 #--------------------- Add Designation ----------------------------------------------------
 
@@ -398,7 +420,8 @@ def designation_bulk_upload(request):
 
 def export_designations(request):
     # Use the get_all_designation function to retrieve the designation data
-    designations = get_all_designations()
+    designations = get_designations()
+ 
     for index, designation in enumerate(designations, start=1):
         designation['Sl.No'] = index
     # Convert the data to a DataFrame
@@ -420,9 +443,26 @@ def export_designations(request):
 
 # ---------------------- List Locations --------------------------------------
 
+# def location_list(request):
+#     locations = get_all_locations()
+#     return render(request, 'location_list.html', {'locations': locations})
+
+@csrf_exempt
 def location_list(request):
-    locations = get_all_locations()
-    return render(request, 'location_list.html', {'locations': locations})
+    if request.method == "GET":
+        template_name = 'location_list.html'
+       
+        return render(request, template_name, )
+
+    if request.method == "POST":
+        start_index = request.POST.get('start')
+        page_length = request.POST.get('length')
+        search_value = request.POST.get('search[value]')
+        draw = request.POST.get('draw')
+       
+        loc = location_list_query(start_index, page_length, search_value, draw)
+       
+        return JsonResponse(loc)
 
 #--------------------- Add Location ----------------------------------------------------
 

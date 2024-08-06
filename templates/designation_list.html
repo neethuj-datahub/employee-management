@@ -28,8 +28,6 @@
     <link href="{% static 'css/bootstrap-icons.css' %}" rel="stylesheet" />
     <link href="{% static '/css/boxicons.min.css' %}" rel="stylesheet" />
     <link href="{% static 'css/remixicon.css' %}" rel="stylesheet" />
-    <link href="{% static 'css/quill.snow.css' %}" rel="stylesheet" />
-    <link href="{% static 'css/quill.bubble.css' %}" rel="stylesheet" />
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/lateststyle.css' %}" />
     <!-- dataTable Responsive -->
@@ -196,12 +194,12 @@
     </aside>
     <main id="main" class="main">
       <div class="pagetitle">
-        <h1>Locations</h1>
+        <h1>Designations</h1>
         <nav>
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
             <li class="breadcrumb-item">Master</li>
-            <li class="breadcrumb-item active">Locations</li>
+            <li class="breadcrumb-item active">Designations</li>
           </ol>
         </nav>
       </div>
@@ -213,13 +211,13 @@
                 <div class="card-title">
                   <div class="d-lg-flex">
                     <div>
-                      <h5 class="card-heading">List of Locations</h5>
+                      <h5 class="card-heading">List of Designations</h5>
                     </div>
                     <div class="ms-auto my-auto mt-lg-0 mt-4">
                       <div class="ms-auto my-auto">
-                        <a href="{% url 'location_add' %}">
+                        <a href="{% url 'designation_add' %}">
                           <button type="button" class="btn btn-success">
-                            <i class="bi bi-plus-circle me-1"></i> Add Location
+                            <i class="bi bi-plus-circle me-1"></i> Add Designation
                           </button>
                         </a>
                         <a href="#bulkUploadModal" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
@@ -227,7 +225,7 @@
                               <i class="bi bi-upload"></i> Bulk Upload
                           </button>
                         </a>
-                        <a href="{% url 'export_locations' %}">
+                        <a href="{% url 'export_designations' %}">
                           <button type="button" class="btn btn-success">
                             <i class="bi bi-download"></i> Export
                           </button>
@@ -240,74 +238,25 @@
                 <table
                   class="display responsive"
                   style="width: 100%"
-                  id="myTable"
+                  id="desTable"
                 >
                   <thead>
                     <tr>
                       <th scope="col" class="text-md dt-nowrap">Sl.No</th>
                       <th scope="col" class="text-md dt-nowrap">Actions</th>
                       <th scope="col" class="text-md dt-nowrap">
-                        Location Name
+                        Designations Name
                       </th>
                       <th scope="col" class="text-md dt-nowrap">
                         Description
                       </th>
-                     
+                      <th scope="col" class="text-md dt-nowrap">
+                        Department
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {% for loc in locations %}
-                    <tr>
-                      <th scope="row">{{ forloop.counter }}</th>
-                      <td
-                        class="justify-content-center align-content-center"
-                        style="min-height: 100% !important; min-width: 100%"
-                      >
-                        <div class="d-flex">
-                          <a href="{% url 'location_edit' loc.location_id %}">
-                            <button
-                              type="button"
-                              class="btn btn-outline-info"
-                              data-bs-toggle="tooltip"
-                              data-bs-placement="top"
-                              title="Edit"
-                            >
-                              <i class="bi bi-pencil-fill"></i>
-                            </button> </a
-                          >&nbsp;
-                          <a href="{% url 'location_view' loc.location_id %}">
-                            <button
-                              type="button"
-                              class="btn btn-outline-success"
-                              data-bs-toggle="tooltip"
-                              data-bs-placement="top"
-                              title="Details"
-                            >
-                              <i class="bi bi-eye-fill"></i>
-                            </button> </a
-                          >&nbsp;
-                          <button
-                            type="button"
-                            class="btn btn-outline-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteModal"
-                            data-location-id="{{ loc.location_id }}"
-                            title="Delete"
-                          >
-                            <i class="bi bi-trash-fill"></i>
-                          </button>
-                          
-                          &nbsp;
-
-                        </div>
-                      </td>
-                      <td class="dt-nowrap">{{ loc.location_name }}</td>
-                      <td class="dt-nowrap">
-                        {{ loc.description }}
-                      </td>
-                      
-                    </tr>
-                    {% endfor %}
+                    
                   </tbody>
                 </table>
               </div>
@@ -353,7 +302,7 @@
           </div>
           <!-- End of message content -->
           <div class="modal-footer">
-            <form id="deleteForm" method="post" action="{% url 'location_delete' 0 %}">
+            <form id="deleteForm" method="post" action="{% url 'designation_delete' 0 %}">
               {% csrf_token %}
               <button type="submit" class="btn btn-outline-danger">Delete</button>
             </form>
@@ -383,7 +332,7 @@
               </div>
               <div class="modal-body">
                   <!-- Form for file upload -->
-                  <form method="post" enctype="multipart/form-data" action="{% url 'location_bulk_upload' %}">
+                  <form method="post" enctype="multipart/form-data" action="{% url 'designation_bulk_upload' %}">
                       {% csrf_token %}
                       <div class="mb-3">
                           <label for="uploadFile" class="form-label">Upload File</label>
@@ -391,14 +340,9 @@
                       </div>
                       <button type="submit" class="btn btn-primary">Upload</button>
                   </form>
-                  {% if error_message %}
-                    <div style="color: red; margin-top: 20px;">
-                        <strong>Error:</strong> {{ error_message }}
-                    </div>
-                  {% endif %}
                   <hr>
                   <!-- Download Template button -->
-                  <a href="{% url 'download_location_template' %}" class="btn btn-secondary">
+                  <a href="{% url 'designation_download_template' %}" class="btn btn-secondary">
                       <i class="bi bi-download"></i> Download Template
                   </a>
               </div>
@@ -414,23 +358,18 @@
           // Button that triggered the modal
           var button = event.relatedTarget;
           // Extract info from data-* attributes
-          var locationId = button.getAttribute('data-location-id');
+          var designationId = button.getAttribute('data-designation-id');
           // Update the form action URL
           var form = deleteModal.querySelector('form');
-          form.action = "{% url 'location_delete' 0 %}".replace('0', locationId);
+          form.action = "{% url 'designation_delete' 0 %}".replace('0', designationId);
         });
       });
     </script>
     
     
   
-    <script src="{% static 'js/apexcharts.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/chart.min.js' %}"></script>
-    <script src="{% static 'js/echarts.min.js' %}"></script>
-    <script src="{% static '/js/quill.min.js' %}"></script>
-    <script src="{% static 'js/tinymce.min.js' %}"></script>
-    <script src="{% static 'js/validate.j' %}'"></script>
     <!-- Responsive DataTable start here -->
     <script src="{% static 'js/jquery-3.5.1.js' %}"></script>
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
@@ -439,5 +378,88 @@
     <!-- init file start here -->
     <script src="{% static 'js/main.js' %}"></script>
     <!-- init file ends here -->
+
+
+
+    <script>
+      $(document).ready(function () {
+          LoadTable();
+      });
+
+      function LoadTable() {
+          var editUrlPattern = "{% url 'designation_edit' 0 %}";
+          var viewUrlPattern = "{% url 'designation_view' 0 %}";
+          // Check if DataTable is already initialized
+          if ($.fn.DataTable.isDataTable('#desTable')) {
+              $('#desTable').DataTable().clear().destroy();
+          }
+          else {
+          $('#desTable').DataTable({
+            "destroy": true, 
+
+              "serverSide": true,
+              "aLengthMenu": [[10, 25, 50], [10, 25, 50]],
+              "paging": true,
+              "ordering": false,
+              "pageLength": 10,
+              "sPaginationType": "full_numbers",
+              "scrollX": false,
+              "processing": true,
+              "language": { "processing": 'Loading......!' },
+              "ajax": {
+                  "url": "{% url 'designation_list' %}",
+                  "type": "POST",
+                  "dataType": "json",
+                  "data": function (d) {
+                      d.csrfmiddlewaretoken = '{{ csrf_token }}';
+                  },
+                  error: function (e) {
+                      $("#desTable tbody").empty().append('<tr class="odd"><td valign="top" colspan="16" class="dataTables_empty">ERROR</td></tr>');
+                  }
+              },
+              
+              "columns": [
+                  { "data": "sl_no" },
+                  {
+                      "data": function (row, type, val, meta) {
+                          var editUrl = editUrlPattern.replace('0', row.designation_id);
+                          var viewUrl = viewUrlPattern.replace('0', row.designation_id);
+                          var varButtons = "";
+                          var varButtons = `
+                              <div class="d-flex">
+                                  <a href="${editUrl}" class="me-1">
+                                      <button type="button" class="btn btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                          <i class="bi bi-pencil-fill"></i>
+                                      </button>
+                                  </a>&nbsp;
+                                  <a href="${viewUrl}" class="me-1">
+                                      <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Details">
+                                          <i class="bi bi-eye-fill"></i>
+                                      </button>
+                                  </a>&nbsp;
+                                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-designation-id="${row.designation_id}" title="Delete">
+                                      <i class="bi bi-trash-fill"></i>
+                                  </button>&nbsp;
+                              </div>
+                          `;
+
+                          return varButtons;
+                      }
+                  },
+                
+                  { "data": "designation_name" },
+                  { "data": "description" },
+                  { "data": "department_name" },                 
+              ],
+             
+              "drawCallback": function () {
+                  $('#desTable_paginate ul.pagination').addClass("pagination-rounded");
+              }
+          });
+         
+
+        }
+      }
+  </script>
   </body>
 </html>
