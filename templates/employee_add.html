@@ -28,7 +28,7 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="join_date"
                           class="col-md-4 col-lg-3 col-form-label">Join date<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -37,7 +37,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="employee_no"
                           class="col-md-4 col-lg-3 col-form-label">Employee Number<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -46,7 +46,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="name"
                           class="col-md-4 col-lg-3 col-form-label">Name<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -55,7 +55,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="phone"
                           class="col-md-4 col-lg-3 col-form-label">Phone<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -64,7 +64,16 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="address"
+                          class="col-md-4 col-lg-3 col-form-label">Address<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.address }}
+                            {{ form.address.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="emp_start_date"
                           class="col-md-4 col-lg-3 col-form-label">Employee Start Date<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -73,8 +82,8 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
-                          class="col-md-4 col-lg-3 col-form-label">Employee End Date<span class="text-danger">*</span></label>
+                        <label for="emp_end_date"
+                          class="col-md-4 col-lg-3 col-form-label">Employee End Date<span class="text-danger"></span></label>
                        
                         <div class="col-md-8 col-lg-9">
                             {{ form.emp_end_date }}
@@ -82,7 +91,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="photo"
                           class="col-md-4 col-lg-3 col-form-label">Photo<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -91,7 +100,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="status"
                           class="col-md-4 col-lg-3 col-form-label">Status<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -100,7 +109,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="department"
                           class="col-md-4 col-lg-3 col-form-label">Department<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -109,7 +118,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="designation"
                           class="col-md-4 col-lg-3 col-form-label">Designation<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -118,7 +127,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="location"
                           class="col-md-4 col-lg-3 col-form-label">Location<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">

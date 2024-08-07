@@ -22,7 +22,7 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row mb-3">
-                        <label for="join date"
+                        <label for="join_date"
                           class="col-md-4 col-lg-3 col-form-label">Join_date<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -32,7 +32,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="employee_no"
                           class="col-md-4 col-lg-3 col-form-label">Employee Number<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -41,7 +41,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="name"
                           class="col-md-4 col-lg-3 col-form-label">Name<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -50,7 +50,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="phone"
                           class="col-md-4 col-lg-3 col-form-label">Phone<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -59,7 +59,16 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="address"
+                          class="col-md-4 col-lg-3 col-form-label">Address<span class="text-danger">*</span></label>
+                       
+                        <div class="col-md-8 col-lg-9">
+                            {{ form.address }}
+                            {{ form.address.errors }}
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="emp_start_date"
                           class="col-md-4 col-lg-3 col-form-label">Emp Start Date<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -68,7 +77,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="emp_end_date"
                           class="col-md-4 col-lg-3 col-form-label">Emp End Date<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -76,27 +85,19 @@
                             {{ form.emp_end_date.errors }}
                         </div>
                       </div>
-                      <div class="row mb-3">
-                        <label for="department Name"
-                          class="col-md-4 col-lg-3 col-form-label">Photo<span class="text-danger">*</span></label>
-                       
-                          <div class="col-md-8 col-lg-9">
-                            <!-- Show existing photo URL if it exists -->
-                            {% if existing_photo %}
-                                <div class="mb-2">
-                                    <p>Current photo path: <a href="{{ existing_photo.url }}" target="_blank">{{ existing_photo.url }}</a></p>
-                                </div>
-                            {% else %}
-                                <p>No photo available.</p>
-                            {% endif %}
+                      
+                      <div class="col-sm-12 col-md-6 col-lg-4">
+                        <label for="numberinmeter" class="form-label">Photo
+                            {% if employee_obj.photo %}
+                            <a href="{{employee_obj.photo.url}}" target="_blank" download class="text-dark" ><i class="bi bi-file-earmark-pdf"></i></a>
+                            {% endif %}  
                             
-                            <!-- File input for uploading a new photo -->
-                            {{ form.photo }}
-                            {{ form.photo.errors }}
-                        </div>
+                            </label>
+                          {{ form.photo}}
+                          {{ form.photo.errors}}
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="status"
                           class="col-md-4 col-lg-3 col-form-label">Status<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -105,7 +106,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="department"
                           class="col-md-4 col-lg-3 col-form-label">Department<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -114,7 +115,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="designation"
                           class="col-md-4 col-lg-3 col-form-label">Designation<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">
@@ -123,7 +124,7 @@
                         </div>
                       </div>
                       <div class="row mb-3">
-                        <label for="department Name"
+                        <label for="location"
                           class="col-md-4 col-lg-3 col-form-label">Location<span class="text-danger">*</span></label>
                        
                         <div class="col-md-8 col-lg-9">

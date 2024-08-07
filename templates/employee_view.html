@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+{% extends 'index.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+   
+</head>
+<body>
+    <main id="main" class="main">
+        <div class="pagetitle">
+          <h1>Edit Employee</h1>
+        </div>
+        <section class="section">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card border border-primary p-4">
+                <h5 class="card-heading">
+                  Edit The Details Of Employee :
+                </h5>
+                <table class="table">
+                    <tbody>
+                      <tr>
+                        <th scope="row" class="col-lg-4">
+                          EMPLOYEE
+                        </th>
+                        <td class="col-lg-8"></td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Join Date </th>
+                        <td class="col-lg-8">{{ employee.join_date }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Employee Number</th>
+                        <td class="col-lg-8">{{ employee.employee_no }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Name</th>
+                        <td class="col-lg-8">{{ employee.name }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Phone</th>
+                        <td class="col-lg-8">{{ employee.phone }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Address</th>
+                        <td class="col-lg-8">{{ employee.address }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Emp Start Date</th>
+                        <td class="col-lg-8">{{ employee.emp_start_date }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Emp End Date</th>
+                        <td class="col-lg-8">{{ employee.emp_end_date }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Photo</th>
+                        <td class="col-lg-8"><a href="{{employee.photo}}" target="_blank" download class="text-dark" ><i class="bi bi-file-earmark-pdf"></i></a>{{ employee.photo }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Status</th>
+                        <td class="col-lg-8">{{ employee.status }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Department</th>
+                        <td class="col-lg-8">{{ department }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Designation</th>
+                        <td class="col-lg-8">{{ designation }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Location</th>
+                        <td class="col-lg-8">{{ location }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row" class="col-lg-4">Skills</th>
+                        <td class="col-lg-8">
+                            
+                                {% for skill in skills %}
+                                <div>
+                                    <strong>Skill Name:</strong> {{ skill.skill_name }}<br>
+                                    <strong>Skill Description:</strong> {{ skill.description }}<br><br>
+                                </div>
+                                {% empty %}
+                                    <p>No skills listed</p>
+                                {% endfor %}
+                            
+                        </td>
+                    </tr>
+
+                      
+                    </tbody>
+                  </table>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center">
+            <a href="{% url 'employee_list' %}">
+              <button class="btn btn-outline-success">
+                <i class="bi bi-arrow-left-square me-1"></i>Back
+              </button>
+            </a>
+          </div>
+        </section>
+        <div class="spacex mb-5"></div>
+      </main>
+
+      <script type="text/javascript">
+        $(document).ready(function () {
+            $('#id_join_date').datepicker({
+                
+                dateFormat: 'yy-mm-dd'
+            });
+            
+           
+        });
+    </script>
+    
+  <script type="text/template" id="empty-form">
+    <div class="skill-form">
+        <input type="hidden" name="form-__prefix__-id" id="id_form-__prefix__-id">
+        <div class="row mb-3">
+            <label class="col-md-4 col-lg-3 col-form-label">Skill Name</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" name="form-__prefix__-skill_name" class="form-control" required id="id_form-__prefix__-skill_name">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-4 col-lg-3 col-form-label">Skill Description</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" name="form-__prefix__-description" class="form-control" required id="id_form-__prefix__-description">
+            </div>
+        </div>
+    </div>
+</script>
+  
+    
+</body>
+</html>
+{% endblock %}

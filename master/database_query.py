@@ -142,7 +142,6 @@ def designation_list_query(start_index, page_length, search_value, draw):
         }
         designation_list.append(designation)
         sl_no += 1
-    print(designation_list)
     filtered_records = total_records
 
     response = {

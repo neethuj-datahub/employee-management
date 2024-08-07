@@ -647,13 +647,11 @@ def employee_add(request):
 
 
 def employee_edit(request,employee_id):
-    employee_instance = get_object_or_404(Employee, employee_id=employee_id)
     template_name = 'employee_edit.html'
-   
+    employee_obj = Employee.objects.get(employee_id = employee_id)
     if request.method == 'POST':
-        form = EmployeeForm(request.POST, request.FILES, instance=employee_instance)
-        formset = SkillFormSet(request.POST, queryset=Skills.objects.filter(employee=employee_instance))
-        
+        form = EmployeeForm(request.POST, request.FILES, instance=employee_obj)
+        formset = SkillFormSet(request.POST, queryset=Skills.objects.filter(employee=employee_obj))
         if form.is_valid() :
          
             employee = form.save(commit=False)
@@ -674,9 +672,90 @@ def employee_edit(request,employee_id):
           
             messages.error(request, 'Data is not valid.', 'alert-danger')
     else:
-        form = EmployeeForm(instance=employee_instance)
-        formset = SkillFormSet(queryset=Skills.objects.filter(employee=employee_instance))
+        form = EmployeeForm(instance=employee_obj)
+        formset = SkillFormSet(queryset=Skills.objects.filter(employee=employee_obj))
     
-    context = {'form': form, 'formset': formset, 'employee_instance': employee_instance,'existing_photo': employee_instance.photo}
+    context = {'form': form, 'formset': formset, 'employee_obj': employee_obj}
     return render(request, template_name, context)
 
+# ---------------------- View Employee --------------------------------------
+
+def employee_view(request,employee_id):
+
+    employee = get_object_or_404(Employee,employee_id=employee_id)
+
+    
+    department=employee.department.department_name
+    designation=employee.designation.designation_name
+    location=employee.location.location_name
+    skills = Skills.objects.filter(employee=employee)
+    context = {
+        
+        'employee': employee,
+        'department':department,
+        'location':location,
+        'designation':designation,
+        'skills': skills,
+    }
+    
+    return render(request, 'employee_view.html', context)
+
+
+#---------------------------Delete  Employee-------------------------------------------------------------------------------#
+
+def employee_delete(request, employee_id):
+    employee = get_object_or_404(Employee, employee_id=employee_id)
+    if request.method == 'POST':
+        employee.delete()
+        messages.success(request, 'Employee deleted successfully!')
+        return redirect('employee_list')  
+    else:
+        messages.error(request, 'Invalid request method.')
+        return redirect('employee_list')
+    
+#---------------------------Export Employee Details-------------------------------------------------------------------------------#
+
+def export_employee(request):
+    employee = Employee.objects.all()
+    data = []
+    
+    for index, employee in enumerate(employee, start=1):
+        data.append({
+            'Sl.No': index,
+            'Employee No': employee.employee_no,
+            'Join Date': employee.join_date,
+            'Name': employee.name,
+            'Phone': employee.phone,
+            'Address': employee.address,
+            'Emp Start Date': employee.emp_start_date,
+            'Emp End Date': employee.emp_end_date,
+            'Status': employee.status,
+            'Department': employee.department.department_name if employee.department else '',
+            'Designation': employee.designation.designation_name if employee.designation else '',
+            'Location': employee.location.location_name if employee.location else '',
+            'Skills': ', '.join([skill.skill_name for skill in employee.skills.all()]),
+        })
+
+    df = pd.DataFrame(data)
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=employee.xlsx'
+
+    # Write the DataFrame to the response
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='employee')
+
+    return response
+
+
+#---------------------------Download  Employee Template-------------------------------------------------------------------------------#
+
+
+ # TODO : template for employee
+
+
+#---------------------------Upload Employee Details-------------------------------------------------------------------------------#
+
+
+# TODO : Bulk upload employee details

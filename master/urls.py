@@ -49,5 +49,11 @@ urlpatterns = [
     path('employee_add', views.employee_add, name='employee_add'),
     path('designations_of_department', views.designations_of_department, name='designations_of_department'),
     path('employee_edit/<str:employee_id>/', views.employee_edit, name='employee_edit'),
+    path('employee_view/<str:employee_id>/', views.employee_view, name='employee_view'),
+    path('employee_delete/<str:employee_id>/', views.employee_delete, name='employee_delete'),
+    path('export_employee/', views.export_employee, name='export_employee'),
+
+    
+
     
 ]
