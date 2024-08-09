@@ -1,6 +1,8 @@
 from django.db import connection
 from django.http import JsonResponse
 from django.conf import settings
+import pandas as pd
+
 
 
 #---------------- funtion to get all department details ------------------------------------------------------
@@ -220,13 +222,17 @@ def location_list_query(start_index, page_length, search_value, draw):
     }
     return response
 
-#---------------- funtion to get all employee details ------------------------------------------------------
+#---------------- funtion to get all employee details and filtered ones ------------------------------------------------------
 
-def employee_list_query(start_index, page_length, search_value, draw):
+def employee_list_query(start_index, page_length, search_value, draw, start_date, end_date):
+    import pandas as pd
+    from django.conf import settings
+    from django.db import connection
+
     # Set default values if start_index or page_length are None
     start_index = start_index if start_index is not None else 0
     page_length = page_length if page_length is not None else 10
-    
+
     # Convert to integers and handle possible conversion errors
     try:
         start_index = int(start_index)
@@ -234,8 +240,14 @@ def employee_list_query(start_index, page_length, search_value, draw):
     except ValueError:
         start_index = 0
         page_length = 10
-    
-    script1 = ''' 
+
+    # Convert start_date and end_date to SQL-friendly string format (YYYY-MM-DD)
+    start_date = pd.to_datetime(start_date, errors='coerce').strftime('%Y-%m-%d') if start_date else None
+    end_date = pd.to_datetime(end_date, errors='coerce').strftime('%Y-%m-%d') if end_date else None
+
+    # Debug print statements
+
+    script1 = '''
     SELECT 
         e.employee_id, e.join_date, e.employee_no, e.name, e.phone, e.address, 
         e.emp_start_date, e.emp_end_date, e.photo, e.status,
@@ -246,39 +258,82 @@ def employee_list_query(start_index, page_length, search_value, draw):
     LEFT JOIN location l ON e.location_id = l.location_id
     WHERE e.name <> 'ALL'
     '''
-    
-    script2 = ''' 
+
+    script2 = '''
     SELECT COUNT(*) FROM employee e
     LEFT JOIN department d ON e.department_id = d.department_id
     LEFT JOIN designation ds ON e.designation_id = ds.designation_id
     LEFT JOIN location l ON e.location_id = l.location_id
     WHERE e.name <> 'ALL'
     '''
-    
+
+    # Adding search filter
     if search_value:
         search_script = " AND e.name LIKE %s"
         script1 += search_script
         script2 += search_script
 
+    # Adding date range filter
+    if start_date and end_date:
+        date_script = """
+        AND e.emp_start_date >= %s 
+        AND e.emp_end_date <= %s
+        """
+        script1 += date_script
+        script2 += date_script
+        date_params = [start_date, end_date]
+    elif start_date:
+        date_script = """
+        AND e.emp_end_date >= %s
+        """
+        script1 += date_script
+        script2 += date_script
+        date_params = [start_date]
+    elif end_date:
+        date_script = """
+        AND e.emp_start_date <= %s
+        """
+        script1 += date_script
+        script2 += date_script
+        date_params = [end_date]
+        print(f"Single date filter: emp_start_date <= {end_date}")
+    else:
+        date_params = []
+
     script1 += " ORDER BY e.name ASC LIMIT %s OFFSET %s;"
 
-    with connection.cursor() as cursor:
-        if search_value:
-            cursor.execute(script1, ('%' + search_value + '%', page_length, start_index))
-        else:
-            cursor.execute(script1, (page_length, start_index))
-        employees = cursor.fetchall()
+    # Combine parameters for main query
+    params = []
+    if search_value:
+        params.append('%' + search_value + '%')
+    params.extend(date_params)
+    params.extend([page_length, start_index])
 
-        if search_value:
-            cursor.execute(script2, ('%' + search_value + '%',))
-        else:
-            cursor.execute(script2)
-        total_records = cursor.fetchone()[0]
+    # Debug print statements
+
+    with connection.cursor() as cursor:
+        try:
+            cursor.execute(script1, params)
+            employees = cursor.fetchall()
+
+            # Adjust params for count query
+            count_params = []
+            if search_value:
+                count_params.append('%' + search_value + '%')
+            count_params.extend(date_params)
+
+
+            cursor.execute(script2, count_params)
+            total_records = cursor.fetchone()[0]
+
+        except Exception as e:
+            raise
 
     employee_list = []
     sl_no = start_index + 1
 
     for row in employees:
+        # Debug print for each row
         employee = {
             'sl_no': sl_no,
             'employee_id': row[0],
@@ -307,4 +362,3 @@ def employee_list_query(start_index, page_length, search_value, draw):
         "data": employee_list
     }
     return response
-

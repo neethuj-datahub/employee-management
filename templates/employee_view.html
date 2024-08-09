@@ -57,7 +57,17 @@
                       </tr>
                       <tr>
                         <th scope="row" class="col-lg-4">Photo</th>
-                        <td class="col-lg-8"><a href="{{employee.photo}}" target="_blank" download class="text-dark" ><i class="bi bi-file-earmark-pdf"></i></a>{{ employee.photo }}</td>
+                        <td class="col-lg-8">
+                          {% if employee.photo %}
+                            <!-- Provide download link with appropriate file name -->
+                            <a href="{{ employee.photo.url }}" download="{{ employee.photo.name }}" class="text-dark">
+                            <i class="bi bi-file-earmark-image"></i> Download Photo
+                            </a>
+                          {% else %}
+                            <!-- Message indicating no photo is available -->
+                            No photo available
+                          {% endif %}
+                        </td>
                       </tr>
                       <tr>
                         <th scope="row" class="col-lg-4">Status</th>

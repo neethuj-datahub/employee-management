@@ -67,3 +67,7 @@ class SkillForm(forms.ModelForm):
         
 # Creates a formset for handling multiple Skills entries, allowing for dynamic addition and deletion of skill forms.
 SkillFormSet = modelformset_factory(Skills, form=SkillForm, extra=0, can_delete=True)
+
+
+class ExcelUploadForm(forms.Form):
+    file = forms.FileField()
