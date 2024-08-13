@@ -6,7 +6,9 @@ from . import views
 urlpatterns = [
 
     #--------------------------- Dashboard URL -----------------------------------------------------------------------
-    path('',views.indexpage,name="indexpage"),
+    path('',views.user_login,name="user_login"),
+    path('index',views.indexpage,name="indexpage"),
+    path('admin_logout',views.admin_logout,name="admin_logout"),
 
     path('dashboard/', views.dashboard, name='dashboard'),
     

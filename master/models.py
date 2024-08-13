@@ -9,7 +9,6 @@ from django.conf import settings
 from django.utils import timezone
 
 
-
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
