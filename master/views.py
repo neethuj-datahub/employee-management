@@ -91,34 +91,89 @@ def indexpage(request):
 
 # def ad_logout(request):
 #     logout(request)
-#     return redirect(ad_login)
-
-
+#     return redirect(user_login)
 
 def user_login(request):
+
     template_name = 'login.html'
 
     if request.method == 'POST':
         username = request.POST.get('username')
-        print("username got :",username)
         password = request.POST.get('password')
-        print("password",password)
-        # Authenticate the user
-        user = authenticate(request, username=username, password=password)
-        print("authenticated :",user)
+        user_exist = User.objects.filter(username=username).exists()
+       
+        if user_exist:
+           
+            user = authenticate(request, username=username, password=password)
+           
+            if user is not None:
+                if user.role == 'ADMIN' :
+                    print("adminnnnn")
+                    login(request, user)
+           
+                    return redirect('indexpage')
+                
+                elif user.role == 'VIEWER':
+                    print("viewer")
+                    login(request, user)
+                    return redirect('indexpage')
+                
+                else:
+                    context = {'msg': 'Invalid Username or Password!'}
+                    return render(request, template_name, context)
+            else:
+                
+                context = {'msg': 'Password is incorrect!'}
+                return render(request, template_name, context)
 
-        if user is not None:
-            # Log the user in
-            login(request, user)
-            
-            # Redirect to indexpage or any other page
-            return redirect('indexpage')
         else:
-            # Authentication failed
-            messages.error(request, 'Invalid username or password.')
-            return render(request, template_name)
-
+            context = {'msg': 'User Does Not exist'}
+            return render(request, template_name, context)  
+            
     return render(request, template_name)
+
+
+def admin_logout(request):
+    
+    logout(request)
+  
+    return redirect(user_login)
+
+# def user_login(request):
+#     template_name = 'login.html'
+
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         print("username got :",username)
+#         password = request.POST.get('password')
+#         print("password",password)
+#         # Authenticate the user
+#         user_exist = User.objects.filter(username=username).exists()
+#         print("-------------",user_exist)
+#         if user_exist:
+#             user = authenticate(request, username=username, password=password)
+#             print("authenticated :",user)
+#         if user is not None:
+#                 if user.role == 'ADMIN' :
+#                     print("hiiiiiiiiiiiiiiiiiiiii")
+#                     login(request, user)
+           
+#                     return redirect('indexpage')
+                
+#                 elif user.role == 'VIEWER':
+#                     login(request, user)
+#                     return redirect('indexpage')
+                
+#                 else:
+#                     context = {'msg': 'Invalid Username or Password!'}
+#                     return render(request, template_name, context)
+        
+#         else:
+#             # Authentication failed
+#             messages.error(request, 'Invalid username or password.')
+#             return render(request, template_name)
+
+#     return render(request, template_name)
 
 
 #-------------------------DEPARTMENT------------------------------------------------------------------------
@@ -128,13 +183,20 @@ def user_login(request):
 # def department_list(request):
 #     departments = get_all_departments()
 #     return render(request, 'department_list.html', {'departments': departments})
+
+
+@login_required
 def department_list(request):
+   
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Handle AJAX request for server-side processing
         return get_all_departments(request)
     
     # Handle normal page request
-    return render(request, 'department_list.html')
+    
+    return render(request, 'department_list.html',{
+        'user': request.user  # Make sure user is passed to the template context
+    })
 
 #--------------------- Add Department ----------------------------------------------------
 
@@ -165,12 +227,13 @@ def department_add(request):
     
 def department_edit(request,department_id):
     department_instance = get_object_or_404(Department, department_id=department_id)
+    updated_by = request.user
     if request.method == 'POST':
         form = DepartmentForm(request.POST, instance=department_instance)
         if form.is_valid():
             department = form.save(commit=False)
             department.updated_at = datetime.now()  
-            department.updated_by = request.user  
+            department.updated_by = updated_by 
             department.save()
             messages.success(request, 'Department updated successfully!')
             return redirect('department_list')  #
@@ -1097,8 +1160,7 @@ def user_edit(request, id):
     role = user_obj.role
     form = User_Edit_Form(instance=user_obj)
     
-    context = {'form': form,
-               'role': role}
+    context = {'form': form,}
     print("CONTEXTTTT :",context)
     if request.method == 'POST':
         form = User_Edit_Form(request.POST, request.FILES, instance=user_obj)
@@ -1260,3 +1322,28 @@ def export_user_details(request):
     response['Content-Disposition'] = 'attachment; filename=user_details.xlsx'
     
     return response
+
+def edit_profile(request):
+    template_name = 'profile_edit.html'
+    user_id =request.user.id
+    user_obj = User.objects.get(id=user_id)
+    
+    form = User_Edit_Form(instance=user_obj)
+    context = {'form': form,}
+    if request.method == 'POST':
+        form = User_Edit_Form(request.POST, request.FILES, instance=user_obj)
+       
+        if form.is_valid():
+            data = form.save(commit=False)
+           
+            data.save()
+            messages.success(request, 'User Updated Successfully', 'alert-success')
+            return redirect('indexpage')
+        else:
+            
+            context = {'form': form,}
+            print(form.errors)
+            messages.error(request, 'Data is not valid.', 'alert-danger')
+            return render(request, template_name, context)
+    else:
+        return render(request, template_name, context)

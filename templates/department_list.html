@@ -373,6 +373,7 @@
       var editUrlPattern = "{% url 'department_edit' 0 %}";
       var viewUrlPattern = "{% url 'department_view' 0 %}";
       
+      
       if ($.fn.DataTable.isDataTable('#myTable')) {
           console.log('DataTable instance found. Destroying...');
           $('#myTable').DataTable().clear().destroy();
@@ -411,7 +412,10 @@
                   render: function(data, type, row, meta) {
                       var editUrl = editUrlPattern.replace('0', row.department_id);
                       var viewUrl = viewUrlPattern.replace('0', row.department_id);
+                      var userRole = "{{ user.role }}"
+                      console.log("----------",userRole)
                       return `<div class="d-flex">
+                      
                           <a href="${editUrl}">
                               <button type="button" class="btn btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                   <i class="bi bi-pencil-fill"></i>

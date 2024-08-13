@@ -69,6 +69,7 @@ urlpatterns = [
     path('download_user_template/', views.download_user_template, name='download_user_template'),
     path('user_bulk_upload/', views.user_bulk_upload, name='user_bulk_upload'),
     path('export_user_details/',views.export_user_details, name='export_user_details'),
+    path('edit_profile/',views.edit_profile, name='edit_profile'),
     
 
 ]

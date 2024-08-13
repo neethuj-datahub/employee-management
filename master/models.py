@@ -12,9 +12,11 @@ from django.utils import timezone
 
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='%(class)s_created_by',
+        null=True, blank=True)
     updated_at = models.DateTimeField(null=True, blank=True)  # Automatically updates on save
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='%(class)s_updated',  on_delete=models.SET_NULL, null=True,)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='%(class)s_updated_by',blank=True, null=True)
     
     class Meta:
         abstract = True
