@@ -111,5 +111,5 @@ class User(AbstractUser):
         related_name='custom_user_permissions' 
     )
 
-    def __str__(self):
-        return self.username
+    def get_instance(self):
+        return self

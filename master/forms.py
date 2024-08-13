@@ -1,6 +1,8 @@
 from django import forms
 from .models import Department,Designation,Location,Employee,Skills,User
 from django.forms import modelformset_factory
+from django.contrib.auth.forms import AuthenticationForm
+
 
 
 
@@ -102,3 +104,10 @@ class User_Edit_Form(forms.ModelForm):
            
             'role': forms.Select(attrs={'class': 'form-control'}, choices=User.ROLE_TYPES),
         }
+
+
+class CustomLoginForm(AuthenticationForm):
+    # username = forms.CharField(label='Username', max_length=100)
+    # password = forms.CharField(label='Password',widget=forms.PasswordInput)
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))

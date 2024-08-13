@@ -106,6 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -117,6 +118,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+AUTH_USER_MODEL = 'master.User'
+
+LOGIN_URL = '/indexpage/'
+LOGOUT_REDIRECT_URL='/user_login/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

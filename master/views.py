@@ -5,7 +5,7 @@ from django.db import connection
 from django.contrib import messages
 from .models import Department,Designation,Location, Skills,Employee,User # Import your model
 from django.contrib.auth.decorators import login_required
-from .forms import DepartmentForm,DesignationForm,LocationForm,EmployeeForm,SkillFormSet,User_Form,User_Edit_Form
+from .forms import DepartmentForm,DesignationForm,LocationForm,EmployeeForm,SkillFormSet,User_Form,User_Edit_Form,CustomLoginForm
 import os
 from django.conf import settings
 from django.contrib.staticfiles import finders
@@ -40,52 +40,86 @@ def indexpage(request):
 
 #----------------------------------------------USER ------------------------------------------------------------
 
-def user_login(request):
+# def user_login(request):
 
+#     template_name = 'login.html'
+
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         print("username",username)
+#         password = request.POST.get('password')
+#         print("pwd----",password)
+#         user = User.objects.filter(username='new').first()
+
+#         if user:
+#             from django.contrib.auth.hashers import check_password
+#             print("mmmmmmmmmm",check_password('new', user.password))
+#         print("userrrrrrrrrrrrr :",user)
+#         if user and check_password(password, user.password):
+#             print("Password check passed")
+#             h = User.objects.filter(username=username).first()
+#             hi = h.password
+#             print("---",check_password(password, h.password))
+#             print("yesss",hi)
+#             user = authenticate(request, username='new', password='pbkdf2_sha256$600000$VnU9nZd8YoRKy2GSSPxtpp$wsui1Xha7cCjpWhkRvrn53WFT5j38tU4ZGPaAYDG7Iw=')
+#             print('Authenticated User:', user)
+#             if user is not None:
+#                 if user.role == 'ADMIN' :   
+#                     print("hiiiiiiiiiii")
+#                     login(request, user)
+           
+#                     return redirect('indexpage')
+                
+#                 elif user.role == 'VIEWER':
+#                     login(request, user)
+#                     return redirect('indexpage')
+                
+#                 else:
+#                     context = {'msg': 'Invalid Username or Password!'}
+#                     return render(request, template_name, context)
+#             else:
+                
+#                 context = {'msg': 'Password is incorrect!'}
+#                 return render(request, template_name, context)
+
+#         else:
+#             context = {'msg': 'User Does Not exist'}
+#             return render(request, template_name, context)  
+            
+#     return render(request, template_name)
+
+
+# def ad_logout(request):
+#     logout(request)
+#     return redirect(ad_login)
+
+
+
+def user_login(request):
     template_name = 'login.html'
 
     if request.method == 'POST':
         username = request.POST.get('username')
-        print("username",username)
+        print("username got :",username)
         password = request.POST.get('password')
-        print("pwd----",password)
-        user_exist = User.objects.filter(username=username).exists()
-        print("userrrrrrrrrrrrr :",user_exist)
-        if user_exist:
-            h = User.objects.filter(username=username).first()
-            hi = h.password
-            print("yesss",hi)
-            user = authenticate(request, username=username, password=password)
-            print('Authenticated User:', user)
-            if user is not None:
-                if user.role == 'ADMIN' :   
-                    print("hiiiiiiiiiii")
-                    login(request, user)
-           
-                    return redirect('indexpage')
-                
-                elif user.role == 'VIEWER':
-                    login(request, user)
-                    return redirect('indexpage')
-                
-                else:
-                    context = {'msg': 'Invalid Username or Password!'}
-                    return render(request, template_name, context)
-            else:
-                
-                context = {'msg': 'Password is incorrect!'}
-                return render(request, template_name, context)
+        print("password",password)
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        print("authenticated :",user)
 
-        else:
-            context = {'msg': 'User Does Not exist'}
-            return render(request, template_name, context)  
+        if user is not None:
+            # Log the user in
+            login(request, user)
             
+            # Redirect to indexpage or any other page
+            return redirect('indexpage')
+        else:
+            # Authentication failed
+            messages.error(request, 'Invalid username or password.')
+            return render(request, template_name)
+
     return render(request, template_name)
 
-
-def ad_logout(request):
-    logout(request)
-    return redirect(ad_login)
 
 #-------------------------DEPARTMENT------------------------------------------------------------------------
 
@@ -110,6 +144,9 @@ def department_add(request):
         description = request.POST.get('description')
         created_at = datetime.now()
         created_by = request.user
+        
+        # created_by = User.objects.get(id=request.user.id)
+        # print("created by :",created_by)
         if department_name and description:
             Department.objects.create(
                 department_name=department_name,
@@ -1159,7 +1196,7 @@ def user_bulk_upload(request):
                 first_name = row['First Name']
                 last_name = row['Last Name']
                 email = row['Email']
-                password = str(row.get('Password', '')).strip()
+                password=row['Password'] 
                 role = row['Role']
                 
                 if pd.isna(username) or pd.isna(email) or pd.isna(password):
