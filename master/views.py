@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect , get_object_or_404
-from .database_query import get_all_departments,get_all_locations,get_departments,designation_list_query,get_designations,location_list_query,employee_list_query
+from .database_query import get_all_departments,get_all_locations,get_departments,designation_list_query,get_designations,location_list_query,employee_list_query,user_list_query
 from datetime import datetime
 from django.db import connection
 from django.contrib import messages
-from .models import Department,Designation,Location, Skills,Employee # Import your model
+from .models import Department,Designation,Location, Skills,Employee,User # Import your model
 from django.contrib.auth.decorators import login_required
-from .forms import DepartmentForm,DesignationForm,LocationForm,EmployeeForm,SkillFormSet
+from .forms import DepartmentForm,DesignationForm,LocationForm,EmployeeForm,SkillFormSet,User_Form,User_Edit_Form
 import os
 from django.conf import settings
 from django.contrib.staticfiles import finders
@@ -22,6 +22,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.core.files.storage import default_storage
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth import authenticate, login,logout
+
+
 
 
 
@@ -29,6 +33,59 @@ from django.core.files.storage import default_storage
 
 def dashboard(request):
     return render(request, 'dashboard.html')
+
+
+def indexpage(request):
+    return render(request, 'index.html')
+
+#----------------------------------------------USER ------------------------------------------------------------
+
+def user_login(request):
+
+    template_name = 'login.html'
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        print("username",username)
+        password = request.POST.get('password')
+        print("pwd----",password)
+        user_exist = User.objects.filter(username=username).exists()
+        print("userrrrrrrrrrrrr :",user_exist)
+        if user_exist:
+            h = User.objects.filter(username=username).first()
+            hi = h.password
+            print("yesss",hi)
+            user = authenticate(request, username=username, password=password)
+            print('Authenticated User:', user)
+            if user is not None:
+                if user.role == 'ADMIN' :   
+                    print("hiiiiiiiiiii")
+                    login(request, user)
+           
+                    return redirect('indexpage')
+                
+                elif user.role == 'VIEWER':
+                    login(request, user)
+                    return redirect('indexpage')
+                
+                else:
+                    context = {'msg': 'Invalid Username or Password!'}
+                    return render(request, template_name, context)
+            else:
+                
+                context = {'msg': 'Password is incorrect!'}
+                return render(request, template_name, context)
+
+        else:
+            context = {'msg': 'User Does Not exist'}
+            return render(request, template_name, context)  
+            
+    return render(request, template_name)
+
+
+def ad_logout(request):
+    logout(request)
+    return redirect(ad_login)
 
 #-------------------------DEPARTMENT------------------------------------------------------------------------
 
@@ -942,3 +999,227 @@ def export_selected_employees(request):
         return response
     else:
         return HttpResponse(status=405)  
+    
+
+#-------------------------------------- ACCOUNTS ------------------------------------------------------------------
+
+#------------------------------------ User List --------------------------------------------------------------------
+
+def user_list(request):
+    if request.method == "GET":
+        template_name = 'user_list.html'
+       
+        return render(request, template_name, )
+
+    if request.method == "POST":      
+        start_index = request.POST.get('start')
+        page_length = request.POST.get('length')
+        search_value = request.POST.get('search[value]')
+        draw = request.POST.get('draw')
+       
+        des = user_list_query(start_index, page_length, search_value, draw)
+       
+        return JsonResponse(des)
+
+#------------------------------------ User Add --------------------------------------------------------------------
+
+
+def user_add(request):
+    form = User_Form
+   
+    template_name = 'user_add.html'
+    
+    context = {'form': form}
+    if request.method == 'POST':
+        form = User_Form(request.POST, request.FILES)
+        
+        if form.is_valid() :
+            data = form.save(commit=False)
+           
+            passw = data.password
+            passw = make_password(passw)
+            data.password = passw
+           
+            data.save()
+            messages.success(request, 'User Added Successfully', 'alert-success')
+            return redirect('user_list')
+        else:
+            messages.error(request, 'Data is not valid.', 'alert-danger')
+            context = {'form': form,}
+            return render(request, template_name, context)
+    else:
+        return render(request, template_name, context)
+    
+# -------------------------------- User Edit ---------------------------------------------
+
+def user_edit(request, id):
+    template_name = 'user_edit.html'
+   
+    
+    user_obj = User.objects.get(id=id)
+    role = user_obj.role
+    form = User_Edit_Form(instance=user_obj)
+    
+    context = {'form': form,
+               'role': role}
+    print("CONTEXTTTT :",context)
+    if request.method == 'POST':
+        form = User_Edit_Form(request.POST, request.FILES, instance=user_obj)
+       
+        if form.is_valid():
+            data = form.save(commit=False)
+           
+            data.save()
+            messages.success(request, 'User Updated Successfully', 'alert-success')
+            return redirect('user_list')
+        else:
+            
+            context = {'form': form,}
+            print(form.errors)
+            messages.error(request, 'Data is not valid.', 'alert-danger')
+            return render(request, template_name, context)
+    else:
+        return render(request, template_name, context)
+    
+
+#------------------------------------ View User ---------------------------------------------------
+
+def user_view(request,id):
+
+    user = get_object_or_404(User,id=id)
+    
+    context = {
+        'user': user
+    }
+    
+    return render(request, 'user_view.html', context)
+
+   
+# --------------------------------- Delete User --------------------------------------------------------
+
+def user_delete(request, id):
+    print("ID :",id)
+    user = User.objects.get(id=id)
+    
+    user.delete()
+    messages.success(request, 'User Deleted Successfully', 'alert-success')
+    return redirect('user_list')
+    
+   
+# -------------------------- Download Template ----------------------------------------------------------
+
+
+def download_user_template(request):
+    user_headers = [
+            'Username',
+            'First Name',
+            'Last Name',
+            'Email',
+            'Password',
+            'Role'
+        ]
+        
+        # Create an Excel writer object
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        # Create a DataFrame with the headers for Users
+        df_users = pd.DataFrame(columns=user_headers)
+        df_users.to_excel(writer, sheet_name='Users', index=False)
+
+    # Prepare the HTTP response
+    output.seek(0)
+    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=user_template.xlsx'
+        
+    return response
+
+
+# ---------------------------- Bulk Upload User -----------------------------------------------------------------
+
+def user_bulk_upload(request):
+    if 'file' not in request.FILES:
+        return HttpResponse("No file uploaded", status=400)
+    
+    file = request.FILES['file']
+    
+    try:
+        # Read the Excel file
+        excel_data = pd.ExcelFile(file)
+        
+        # Read user data
+        df_users = pd.read_excel(excel_data, sheet_name='Users')
+        
+        
+        # Iterate over user data
+        for index, row in df_users.iterrows():
+            
+            try:
+                # Handle missing or incorrect data
+                username = row['Username']
+                first_name = row['First Name']
+                last_name = row['Last Name']
+                email = row['Email']
+                password = str(row.get('Password', '')).strip()
+                role = row['Role']
+                
+                if pd.isna(username) or pd.isna(email) or pd.isna(password):
+                    # Skip rows with missing mandatory fields
+                    print(f"Skipping row {index} due to missing mandatory fields.")
+                    continue
+                
+                if role not in ['Admin', 'Viewer']:
+                    # Skip rows with invalid roles
+                    print(f"Skipping row {index} due to invalid role: {role}")
+                    continue
+                
+                # Create or update user
+                user, created = User.objects.update_or_create(
+                    username=username,
+                    defaults={
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'email': email,
+                        'role': role,
+                        'password': make_password(password),
+                        
+
+                    }
+                )
+                
+              
+            except Exception as e:
+                # Log the error and continue processing other rows
+                print(f"Error processing user row {index}: {e}")
+        
+        return render(request, 'user_list.html')
+    
+    except Exception as e:
+        return HttpResponse(f"Error processing file: {e}", status=500)
+    
+# -------------------------------- Export Users -----------------------------------------------
+
+
+def export_user_details(request):
+    # Fetch user data from the database
+    users = User.objects.all().values(
+        'username',
+        'first_name',
+        'last_name',
+        'email',
+        'role'
+    )
+    
+    # Convert data to a DataFrame
+    df_users = pd.DataFrame(users)
+    
+    # Define the response as an Excel file
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df_users.to_excel(writer, sheet_name='Users', index=False)
+    
+    # Prepare HTTP response
+    output.seek(0)
+    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=user_details.xlsx'
+    
+    return response

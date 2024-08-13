@@ -1,5 +1,5 @@
 from django import forms
-from .models import Department,Designation,Location,Employee,Skills
+from .models import Department,Designation,Location,Employee,Skills,User
 from django.forms import modelformset_factory
 
 
@@ -71,3 +71,34 @@ SkillFormSet = modelformset_factory(Skills, form=SkillForm, extra=0, can_delete=
 
 class ExcelUploadForm(forms.Form):
     file = forms.FileField()
+
+#--------------------------------------- USER FORM ----------------------------------------------------
+
+class User_Form(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'role']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'required': 'true'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'required': 'true'}),
+            'role': forms.Select(attrs={'class': 'form-control'}, choices=User.ROLE_TYPES),
+        }
+
+
+#-------------------------------- user edit forms --------------------------------------
+
+class User_Edit_Form(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email',  'role']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'required': 'true'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+           
+            'role': forms.Select(attrs={'class': 'form-control'}, choices=User.ROLE_TYPES),
+        }

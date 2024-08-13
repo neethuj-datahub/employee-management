@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'employee_management.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'emp_db',
+        'NAME': 'new_db_name',
         'USER': 'root',
         'PASSWORD': 'root@123',
         'HOST': 'localhost',  # Or the IP address of your MySQL server

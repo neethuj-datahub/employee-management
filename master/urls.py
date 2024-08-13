@@ -6,6 +6,7 @@ from . import views
 urlpatterns = [
 
     #--------------------------- Dashboard URL -----------------------------------------------------------------------
+    path('',views.indexpage,name="indexpage"),
 
     path('dashboard/', views.dashboard, name='dashboard'),
     
@@ -57,5 +58,17 @@ urlpatterns = [
     path('filtered_employees/', views.filtered_employees, name='filtered_employees'),
     path('export_selected_employees/', views.export_selected_employees, name='export_selected_employees'),
 
-       
+#------------------------------------------ ACCOUNTS -------------------------------------------------------------------
+
+    path('user_login', views.user_login, name='user_login'),
+    path('user_list', views.user_list, name='user_list'),
+    path('user_add', views.user_add, name='user_add'),
+    path('user_edit/<str:id>/', views.user_edit, name='user_edit'),
+    path('user_view/<str:id>/', views.user_view, name='user_view'),
+    path('user_delete/<str:id>/', views.user_delete, name='user_delete'),
+    path('download_user_template/', views.download_user_template, name='download_user_template'),
+    path('user_bulk_upload/', views.user_bulk_upload, name='user_bulk_upload'),
+    path('export_user_details/',views.export_user_details, name='export_user_details'),
+    
+
 ]

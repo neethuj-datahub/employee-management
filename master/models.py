@@ -9,6 +9,7 @@ from django.conf import settings
 from django.utils import timezone
 
 
+
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -87,3 +88,28 @@ class Skills(models.Model):
         db_table = 'skills'
     def __str__(self):
         return str(self.skill_name)   
+    
+
+
+
+from django.contrib.auth.models import User,AbstractUser, Group, Permission
+
+class User(AbstractUser):
+    ROLE_TYPES = (
+        ('ADMIN', 'ADMIN'),
+        ('VIEWER', 'VIEWER'),
+    )
+
+    role = models.CharField(max_length=10, choices=ROLE_TYPES)
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name='custom_user_groups' 
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name='custom_user_permissions' 
+    )
+
+    def __str__(self):
+        return self.username

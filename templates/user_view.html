@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+{% extends 'index.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <main id="main" class="main">
+    <div class="pagetitle">
+      <h1>User Details</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item">Master</li>
+          <li class="breadcrumb-item active">User Details</li>
+        </ol>
+      </nav>
+    </div>
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card border border-primary p-4">
+            <table class="table">
+              <tbody>
+                      
+                <tr>
+                  <th scope="col" class="text-md dt-nowrap">
+                  Name
+                    </th>
+                
+                  <td class="dt-nowrap">{{user.first_name}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="col" class="text-md dt-nowrap">
+                      Username
+                     </th>
+                  <td class="dt-nowrap">
+                    {{user.username}}
+                  </td>
+                  
+                </tr>
+
+                <tr>
+                    <th scope="col" class="text-md dt-nowrap">
+                      Email
+                     </th>
+                  <td class="dt-nowrap">
+                    {{user.email}}
+                  </td>
+                  
+                </tr>
+
+                <tr>
+                    <th scope="col" class="text-md dt-nowrap">
+                      Role
+                     </th>
+                  <td class="dt-nowrap">
+                    {{user.role}}
+                  </td>
+                  
+                </tr>
+               
+              </tbody>
+            </table>
+          </div>
+         
+        </div>
+      </div>
+      <div class="d-flex justify-content-center">
+        <a href="{% url 'user_list' %}">
+          <button class="btn btn-outline-success">
+            <i class="bi bi-arrow-left-square me-1"></i>Back
+          </button>
+        </a>
+      </div>
+    </section>
+    <div class="spacex mb-5"></div>
+  </main>
+     
+</body>
+</html>
+{% endblock %}
