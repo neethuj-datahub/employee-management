@@ -212,7 +212,6 @@
                 if (selectAllChecked) {
                     new_list_count.push(new_total[0]);
                     $('#rowCount').text(new_total[0] + ' employees selected');
-                    $('#download_selected').prop('disabled', true);
                 } else {
                     if (new_list_count.length !== 0) {
                         var new_count = new_list_count[0] - unselect.size;
@@ -316,6 +315,7 @@
         
             $('#select_all').on('click', function () {
                 var isChecked = $(this).is(':checked');
+                
                 var table = $('#empTable').DataTable();
         
                 if (isChecked) {
