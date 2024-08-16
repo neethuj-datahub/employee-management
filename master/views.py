@@ -9,7 +9,7 @@ from .forms import DepartmentForm,DesignationForm,LocationForm,EmployeeForm,Skil
 import os
 from django.conf import settings
 from django.contrib.staticfiles import finders
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from django.core.exceptions import ValidationError
 import pandas as pd # type: ignore
 import pandas as pd
@@ -22,9 +22,18 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.core.files.storage import default_storage
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login,logout
-from django.http import HttpResponseForbidden
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.units import inch
+from django.core.mail import EmailMessage
+
+
 
 
 
@@ -1015,8 +1024,145 @@ def export_selected_employees(request):
         return response
     else:
         return HttpResponse(status=405)  
-    
 
+#------------------------------------ Download PDF of an employee --------------------------------------------------------------------
+def generate_pdf(employee):
+    # Create a PDF buffer to hold the PDF data
+    buffer = BytesIO()
+
+    # Create the PDF document with the specified page size
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+
+    # Add employee photo if available
+    if employee.photo:  # Assuming you have a `photo` field in your Employee model
+        try:
+            photo_path = employee.photo.path
+            img = Image(photo_path, width=2*inch, height=2*inch)
+            elements.append(img)
+            elements.append(Spacer(1, 12))
+        except Exception as e:
+            # Handle the case where the photo cannot be loaded
+            print(f"Error loading image: {e}")
+
+    # Retrieve related data
+    department = employee.department.department_name
+    designation = employee.designation.designation_name
+    location = employee.location.location_name
+    skills = Skills.objects.filter(employee=employee)
+
+    # Get styles for text formatting
+    styles = getSampleStyleSheet()
+
+    # Add employee details to the PDF
+    elements.append(Paragraph(f"Employee No: {employee.employee_no}", styles['Title']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Name: {employee.name}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Phone: {employee.phone}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Address: {employee.address}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Employee Join Date: {employee.join_date}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Employee Start Date: {employee.emp_start_date}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Employee End Date: {employee.emp_end_date}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Status: {employee.status}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Department: {department}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Designation: {designation}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    elements.append(Paragraph(f"Location: {location}", styles['Normal']))
+    elements.append(Spacer(1, 12))  # Add space between elements
+
+    # Add skills to the PDF, handling the case where there are no skills
+    if skills.exists():
+        skills_list = ', '.join(skill.skill_name for skill in skills)
+    else:
+        skills_list = 'No skills recorded'
+
+    elements.append(Paragraph(f"Skills: {skills_list}", styles['Normal']))
+
+    # Build the PDF document
+    doc.build(elements)
+
+    # Get the PDF data from the buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    return pdf
+
+def employee_pdf_download(request, employee_id):
+    # Get the employee object or return a 404 error if not found
+    employee = get_object_or_404(Employee, employee_id=employee_id)
+    
+    # Generate the PDF
+    pdf = generate_pdf(employee)
+    
+    # Return the PDF as an HTTP response with appropriate headers
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="employee_{employee.employee_no}.pdf"'
+    
+    # Send the PDF as an email attachment
+
+    return response
+
+def mail_pdf(request,employee_id):
+     # Ensure the request method is POST
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Invalid request method. Use POST.")
+
+    # Get the employee object or return a 404 error if not found
+    employee = get_object_or_404(Employee, employee_id=employee_id)
+    
+    # Generate the PDF
+    pdf = generate_pdf(employee)
+    
+    # Get email address from POST data
+    recipient_email = request.POST.get('email')
+    if not recipient_email:
+        return HttpResponseBadRequest("No email address provided.")
+    
+    # Define the email subject and body
+    subject = f"Employee Report for {employee.name}"
+    body = f"Dear {employee.name},\n\nPlease find attached the PDF report containing your details.\n\nBest regards,\nYour Company"
+    
+    try:
+        # Create an email message
+        email = EmailMessage(
+            subject,
+            body,
+            'your_email@example.com',  # Replace with your sender email address
+            [recipient_email],  # Replace with the employee's email address
+        )
+        
+        # Attach the PDF
+        email.attach(f"employee_{employee.employee_no}.pdf", pdf, 'application/pdf')
+        
+        # Send the email
+        email.send()
+
+        # Return a success response
+        messages.success(request, 'Email sent successfully.','alert-success')
+        return redirect('employee_list')
+
+    except Exception as e:
+        # Log the exception and return an error response
+        print(f"Error sending email: {e}")
+        return HttpResponseServerError("An error occurred while sending the email.")
 #-------------------------------------- ACCOUNTS ------------------------------------------------------------------
 
 #------------------------------------ User List --------------------------------------------------------------------

@@ -190,7 +190,49 @@
         </div>
       </div>
   <!-- End of Modal for Bulk Upload -->
-
+<!--Modal for Sending Mail -->
+<div
+      class="modal fade"
+      id="emailModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">SEND PDF</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          
+          
+          <!-- End of message content -->
+          <div class="modal-footer">
+            <form id="mailForm" method="post" action="{% url 'mail_pdf' 0 %}">
+              <label for="email">Enter Email Address:</label>
+              <input type="email" id="email" name="email" required>
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-success">Send</button>
+            </form>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            
+            
+          </div>
+        </div>
+      </div>
+    </div>
+<!--End of Modal for Sending Mail -->
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
@@ -267,10 +309,10 @@
                             "data": function (row, type, val, meta) {
                                 var editUrlPattern = "{% url 'employee_edit' 0 %}";
                                 var viewUrlPattern = "{% url 'employee_view' 0 %}";
+                                var downloadUrlPattern ="{% url 'employee_pdf_download' 0 %}";
                                 var editUrl = editUrlPattern.replace('0', row.employee_id);
                                 var viewUrl = viewUrlPattern.replace('0', row.employee_id);
-                                varButtons = '<div class="d-flex">';
-
+                                var downloadpdfUrl = downloadUrlPattern.replace('0', row.employee_id);                                varButtons = '<div class="d-flex">';
                                 // Add Edit button if user is not a viewer
                                 if (userRole !== 'VIEWER') {
                                     varButtons += `
@@ -279,17 +321,27 @@
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
                                     </a>&nbsp;
+                                    
                                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-employee-id="${row.employee_id}" title="Delete">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>&nbsp;
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#emailModal" data-employee-id="${row.employee_id}" title="Send Mail">
+                                        <i class="bi bi-envelope"></i></i>
+                                    </button>&nbsp;
+                                    
                                     `;
                                 }
         
                                 // Always add View button
                                 varButtons += `
                                 <a href="${viewUrl}" class="me-1">
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Details">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download">
                                         <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                </a>&nbsp;
+                                <a href="${downloadpdfUrl}" class="me-1">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Details">
+                                        <i class="bi bi-download"></i>
                                     </button>
                                 </a>&nbsp;
                                 `;
@@ -416,6 +468,21 @@
         });
         </script>
         
+        <script>
+            // JavaScript to handle the modal
+            document.addEventListener('DOMContentLoaded', function () {
+              var emailModal = document.getElementById('emailModal');
+              emailModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                var button = event.relatedTarget;
+                // Extract info from data-* attributes
+                var employeeId = button.getAttribute('data-employee-id');
+                // Update the form action URL
+                var form = emailModal.querySelector('form');
+                form.action = "{% url 'mail_pdf' 0 %}".replace('0', employeeId);
+              });
+            });
+          </script>
     <script>
         // JavaScript to handle the modal
         document.addEventListener('DOMContentLoaded', function () {

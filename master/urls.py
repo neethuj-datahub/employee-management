@@ -59,7 +59,8 @@ urlpatterns = [
     path('bulk_upload_employees/', views.bulk_upload_employees, name='bulk_upload_employees'),
     path('filtered_employees/', views.filtered_employees, name='filtered_employees'),
     path('export_selected_employees/', views.export_selected_employees, name='export_selected_employees'),
-
+    path('employee_pdf_download/<str:employee_id>/', views.employee_pdf_download, name='employee_pdf_download'),
+    path('mail_pdf/<str:employee_id>/', views.mail_pdf, name='mail_pdf'),
 #------------------------------------------ ACCOUNTS -------------------------------------------------------------------
 
     path('user_login', views.user_login, name='user_login'),
