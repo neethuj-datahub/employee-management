@@ -52,13 +52,11 @@ def user_login(request):
            
             if user is not None:
                 if user.role == 'ADMIN' :
-                    print("adminnnnn")
                     login(request, user)
            
                     return redirect('indexpage')
                 
                 elif user.role == 'VIEWER':
-                    print("viewer")
                     login(request, user)
                     return redirect('indexpage')
                 
@@ -114,7 +112,6 @@ def department_add(request):
         created_by = request.user
         
         # created_by = User.objects.get(id=request.user.id)
-        # print("created by :",created_by)
         if department_name and description:
             Department.objects.create(
                 department_name=department_name,
@@ -368,24 +365,12 @@ def designation_download_template(request):
     ws['B1'] = "Designation Name"
     ws['C1'] = "Description"
 
-    # Highlighting style for instructions
-    highlight_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
-
-    # Add instructions to the same sheet (ws) but after the columns
-    instruction_start_coloumn = 4  # Row to start instructions after data columns
-    ws[f'D{instruction_start_coloumn}'] = "Instructions:"
-    ws[f'E{instruction_start_coloumn + 1}'] = "Please include only departments listed in the 'Department List' sheet."
-
-    # Apply highlighting to the instruction cells
-    ws[f'D{instruction_start_coloumn}'].fill = highlight_fill
-    ws[f'E{instruction_start_coloumn + 1}'].fill = highlight_fill
+    
 
     # Add a new worksheet for the department list
     ws_list = wb.create_sheet(title="Department List")
 
-    # Add instructions in the new sheet
-    ws_list['A1'] = "List of Departments (Include only these in the 'Department Name' column)"
-    ws_list['A1'].fill = highlight_fill
+    
 
     # Add department names to the new sheet
     for idx, dept in enumerate(departments, start=2):
@@ -415,7 +400,7 @@ def designation_bulk_upload(request):
             return render(request, 'designation_add.html')
 
         try:
-            df = pd.read_excel(uploaded_file)  # Skip the first 3 rows where headers are assumed to be
+            df = pd.read_excel(uploaded_file)
         except Exception as e:
             messages.error(request, f"Error reading the file: {str(e)}")
             return render(request, 'designation_add.html')
@@ -464,13 +449,15 @@ def designation_bulk_upload(request):
 
             # Update or create the designation
             try:
+                print(f"Processing Row {index + 1}: Designation Name = {designation_name}, Department = {department_instance.department_name}")
                 Designation.objects.update_or_create(
                     designation_name=designation_name,
+                    department_id = department_instance.department_id,
                     defaults={
                         'description': description,
                         'created_at': created_at,
                         'created_by': created_by,
-                        'department_id': department_instance.department_id  # Use 'id' to refer to the primary key
+                          # Use 'id' to refer to the primary key
                     }
                 )
             except Exception as e:
@@ -808,7 +795,7 @@ def export_employee(request):
 
     for index, employee in enumerate(employee, start=1):
         photo_url = employee.photo.url if employee.photo and default_storage.exists(employee.photo.name) else ''
-
+        skills = [skill.skill_name or '' for skill in employee.skills.all()]
         data.append({
             'Sl.No': index,
             'Employee No': employee.employee_no,
@@ -823,7 +810,7 @@ def export_employee(request):
             'Department': employee.department.department_name if employee.department else '',
             'Designation': employee.designation.designation_name if employee.designation else '',
             'Location': employee.location.location_name if employee.location else '',
-            'Skills': ', '.join([skill.skill_name for skill in employee.skills.all()]),
+            'Skills':  ', '.join(skills),
             
         })
 
@@ -907,14 +894,12 @@ def bulk_upload_employees(request):
         departments = {dep.department_name: dep for dep in Department.objects.all()}
         designations = {desg.designation_name: desg for desg in Designation.objects.all()}
         locations = {loc.location_name: loc for loc in Location.objects.all()}
-        
         # Iterate over employee data
         for index, row in df_employees.iterrows():
             # Handle missing or incorrect data types
             department = departments.get(row['Department'])
             designation = designations.get(row['Designation'])
             location = locations.get(row['Location'])
-
             created_at = datetime.now()
             created_by = request.user
             
@@ -1099,7 +1084,6 @@ def user_edit(request, id):
     form = User_Edit_Form(instance=user_obj)
     
     context = {'form': form,}
-    print("CONTEXTTTT :",context)
     if request.method == 'POST':
         form = User_Edit_Form(request.POST, request.FILES, instance=user_obj)
        
@@ -1135,9 +1119,7 @@ def user_view(request,id):
 # --------------------------------- Delete User --------------------------------------------------------
 
 def user_delete(request, id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
-    print("ID :",id)
+    
     user = User.objects.get(id=id)
     
     user.delete()
@@ -1208,7 +1190,7 @@ def user_bulk_upload(request):
                     print(f"Skipping row {index} due to missing mandatory fields.")
                     continue
                 
-                if role not in ['Admin', 'Viewer']:
+                if role not in ['Admin', 'Viewer','ADMIN','VIEWER']:
                     # Skip rows with invalid roles
                     print(f"Skipping row {index} due to invalid role: {role}")
                     continue
