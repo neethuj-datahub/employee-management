@@ -37,59 +37,6 @@ def indexpage(request):
 
 #----------------------------------------------USER ------------------------------------------------------------
 
-# def user_login(request):
-
-#     template_name = 'login.html'
-
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         print("username",username)
-#         password = request.POST.get('password')
-#         print("pwd----",password)
-#         user = User.objects.filter(username='new').first()
-
-#         if user:
-#             from django.contrib.auth.hashers import check_password
-#             print("mmmmmmmmmm",check_password('new', user.password))
-#         print("userrrrrrrrrrrrr :",user)
-#         if user and check_password(password, user.password):
-#             print("Password check passed")
-#             h = User.objects.filter(username=username).first()
-#             hi = h.password
-#             print("---",check_password(password, h.password))
-#             print("yesss",hi)
-#             user = authenticate(request, username='new', password='pbkdf2_sha256$600000$VnU9nZd8YoRKy2GSSPxtpp$wsui1Xha7cCjpWhkRvrn53WFT5j38tU4ZGPaAYDG7Iw=')
-#             print('Authenticated User:', user)
-#             if user is not None:
-#                 if user.role == 'ADMIN' :   
-#                     print("hiiiiiiiiiii")
-#                     login(request, user)
-           
-#                     return redirect('indexpage')
-                
-#                 elif user.role == 'VIEWER':
-#                     login(request, user)
-#                     return redirect('indexpage')
-                
-#                 else:
-#                     context = {'msg': 'Invalid Username or Password!'}
-#                     return render(request, template_name, context)
-#             else:
-                
-#                 context = {'msg': 'Password is incorrect!'}
-#                 return render(request, template_name, context)
-
-#         else:
-#             context = {'msg': 'User Does Not exist'}
-#             return render(request, template_name, context)  
-            
-#     return render(request, template_name)
-
-
-# def ad_logout(request):
-#     logout(request)
-#     return redirect(user_login)
-
 def user_login(request):
 
     template_name = 'login.html'
@@ -136,55 +83,15 @@ def admin_logout(request):
   
     return redirect(user_login)
 
-# def user_login(request):
-#     template_name = 'login.html'
-
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         print("username got :",username)
-#         password = request.POST.get('password')
-#         print("password",password)
-#         # Authenticate the user
-#         user_exist = User.objects.filter(username=username).exists()
-#         print("-------------",user_exist)
-#         if user_exist:
-#             user = authenticate(request, username=username, password=password)
-#             print("authenticated :",user)
-#         if user is not None:
-#                 if user.role == 'ADMIN' :
-#                     print("hiiiiiiiiiiiiiiiiiiiii")
-#                     login(request, user)
-           
-#                     return redirect('indexpage')
-                
-#                 elif user.role == 'VIEWER':
-#                     login(request, user)
-#                     return redirect('indexpage')
-                
-#                 else:
-#                     context = {'msg': 'Invalid Username or Password!'}
-#                     return render(request, template_name, context)
-        
-#         else:
-#             # Authentication failed
-#             messages.error(request, 'Invalid username or password.')
-#             return render(request, template_name)
-
-#     return render(request, template_name)
-
-
 #-------------------------DEPARTMENT------------------------------------------------------------------------
 
 # ---------------------- LIST DEPARTMENT FUNCTION --------------------------------------
 
-# def department_list(request):
-#     departments = get_all_departments()
-#     return render(request, 'department_list.html', {'departments': departments})
-
 
 @login_required
 def department_list(request):
-   
+    user_obj = User.objects.filter(id =request.user.id).first()
+    role = user_obj.role
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Handle AJAX request for server-side processing
         return get_all_departments(request)
@@ -192,14 +99,14 @@ def department_list(request):
     # Handle normal page request
     
     return render(request, 'department_list.html',{
-        'user': request.user  # Make sure user is passed to the template context
+        'user': request.user ,
+        'role': role # Make sure user is passed to the template context
     })
 
 #--------------------- Add Department ----------------------------------------------------
 
 def department_add(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     if request.method == 'POST':
         department_name = request.POST.get('department_name')
         description = request.POST.get('description')
@@ -225,8 +132,6 @@ def department_add(request):
 #---------------------------Edit Department-------------------------------------------------------------------------------#
     
 def department_edit(request,department_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
 
     department_instance = get_object_or_404(Department, department_id=department_id)
     updated_by = request.user
@@ -256,8 +161,7 @@ def department_view(request,department_id):
 
 
 def department_delete(request, department_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     department = get_object_or_404(Department, department_id=department_id)
     if request.method == 'POST':
         department.delete()
@@ -270,8 +174,7 @@ def department_delete(request, department_id):
 #---------------------------Download  Department Template-------------------------------------------------------------------------------#
 
 def download_template(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     template_path = finders.find('template/department_template.xlsx')
     if not template_path:
         # Handle the case where the file is not found
@@ -285,8 +188,7 @@ def download_template(request):
 #---------------------------Upload Department Details-------------------------------------------------------------------------------#
 
 def bulk_upload(request):
-        if request.user.role != 'ADMIN':
-            return HttpResponseForbidden("You don't have permission to edit this data.")
+        
         # Check file type
         uploaded_file = request.FILES.get('upload_file')
         if not uploaded_file.name.endswith(('.xls', '.xlsx')):
@@ -349,9 +251,14 @@ def designations_of_department(request):
 @csrf_exempt
 
 def designation_list(request):
+    user_obj = User.objects.filter(id =request.user.id).first()
+    role = user_obj.role
     if request.method == "GET":
         template_name = 'designation_list.html'
-        return render(request, template_name, )
+        context ={
+            'role':role
+        }
+        return render(request, template_name, context)
 
     if request.method == "POST":
         start_index = request.POST.get('start')
@@ -365,8 +272,7 @@ def designation_list(request):
 #--------------------- Add Designation ----------------------------------------------------
 
 def designation_add(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     if request.method == 'POST':
         designation_name = request.POST.get('designation_name')
         description = request.POST.get('description')
@@ -393,8 +299,7 @@ def designation_add(request):
 #---------------------------Edit Designation-------------------------------------------------------------------------------#
     
 def designation_edit(request, designation_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     designation_instance = get_object_or_404(Designation, pk=designation_id)
     departments = Department.objects.all()  # Get all departments for the dropdown
     current_department_id = designation_instance.department.pk if designation_instance.department else None
@@ -433,8 +338,7 @@ def designation_view(request,designation_id):
 #---------------------------Delete  Designation-------------------------------------------------------------------------------#
 
 def designation_delete(request, designation_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     designation = get_object_or_404(Designation, designation_id=designation_id)
     if request.method == 'POST':
         designation.delete()
@@ -449,8 +353,7 @@ def designation_delete(request, designation_id):
 
 
 def designation_download_template(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     departments = Department.objects.values_list('department_name', flat=True)
     if not departments:
         departments = ["No departments available"]  # Fallback if no departments exist
@@ -503,8 +406,7 @@ def designation_download_template(request):
 
 
 def designation_bulk_upload(request):
-     if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+     
      if request.method == 'POST':
         uploaded_file = request.FILES.get('upload_file')
         
@@ -612,16 +514,16 @@ def export_designations(request):
 
 # ---------------------- List Locations --------------------------------------
 
-# def location_list(request):
-#     locations = get_all_locations()
-#     return render(request, 'location_list.html', {'locations': locations})
-
 @csrf_exempt
 def location_list(request):
+    user_obj = User.objects.filter(id =request.user.id).first()
+    role = user_obj.role
     if request.method == "GET":
         template_name = 'location_list.html'
-       
-        return render(request, template_name, )
+        context = {
+            'role': role
+        }
+        return render(request, template_name, context)
 
     if request.method == "POST":
         start_index = request.POST.get('start')
@@ -636,8 +538,7 @@ def location_list(request):
 #--------------------- Add Location ----------------------------------------------------
 
 def location_add(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     if request.method == 'POST':
         location_name = request.POST.get('location_name')
         description = request.POST.get('description')
@@ -662,8 +563,7 @@ def location_add(request):
 #---------------------------Edit Location-------------------------------------------------------------------------------#
     
 def location_edit(request,location_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     location_instance = get_object_or_404(Location, location_id=location_id)
     if request.method == 'POST':
         form = LocationForm(request.POST, instance=location_instance)
@@ -693,8 +593,7 @@ def location_view(request,location_id):
 
 
 def location_delete(request, location_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     location = get_object_or_404(Location, location_id=location_id)
     if request.method == 'POST':
         location.delete()
@@ -708,8 +607,7 @@ def location_delete(request, location_id):
 #---------------------------Download  Location Template-------------------------------------------------------------------------------#
 
 def download_location_template(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     template_path = finders.find('template/location_template.xlsx')
     if not template_path:
         # Handle the case where the file is not found
@@ -723,8 +621,7 @@ def download_location_template(request):
 #---------------------------Upload location Details-------------------------------------------------------------------------------#
 
 def location_bulk_upload(request):
-        if request.user.role != 'ADMIN':
-            return HttpResponseForbidden("You don't have permission to edit this data.")
+        
         # Check file type
         uploaded_file = request.FILES.get('upload_file')
         if not uploaded_file.name.endswith(('.xls', '.xlsx')):
@@ -778,10 +675,14 @@ def export_locations(request):
 
 @csrf_exempt
 def employee_list(request):
+    user_obj = User.objects.filter(id =request.user.id).first()
+    role = user_obj.role
     if request.method == "GET":
         template_name = 'employee_list.html'
-       
-        return render(request, template_name, )
+        context = {
+            'role':role
+        }
+        return render(request, template_name,context)
 
     if request.method == "POST":
         start_index = request.POST.get('start')
@@ -799,8 +700,7 @@ def employee_list(request):
 # ---------------------- Add Employee --------------------------------------
 
 def employee_add(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     form = EmployeeForm
     formset = SkillFormSet(queryset=Skills.objects.none())
     template_name = 'employee_add.html'
@@ -834,8 +734,7 @@ def employee_add(request):
 
 
 def employee_edit(request,employee_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     template_name = 'employee_edit.html'
     employee_obj = Employee.objects.get(employee_id = employee_id)
     if request.method == 'POST':
@@ -891,8 +790,7 @@ def employee_view(request,employee_id):
 #---------------------------Delete  Employee-------------------------------------------------------------------------------#
 
 def employee_delete(request, employee_id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     employee = get_object_or_404(Employee, employee_id=employee_id)
     if request.method == 'POST':
         employee.delete()
@@ -946,8 +844,7 @@ def export_employee(request):
 
 
 def download_employee_template(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
      # Define the headings for the Employee template
     employee_headers = [
         'Join Date',
@@ -991,8 +888,7 @@ def download_employee_template(request):
 
 
 def bulk_upload_employees(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     if 'file' not in request.FILES:
         return HttpResponse("No file uploaded", status=400)
     
@@ -1141,10 +1037,15 @@ def export_selected_employees(request):
 #------------------------------------ User List --------------------------------------------------------------------
 
 def user_list(request):
+
+    user_obj = User.objects.filter(id =request.user.id).first()
+    role = user_obj.role
     if request.method == "GET":
         template_name = 'user_list.html'
-       
-        return render(request, template_name, )
+        context = {
+            'role': role
+        }
+        return render(request, template_name,context)
 
     if request.method == "POST":      
         start_index = request.POST.get('start')
@@ -1160,8 +1061,7 @@ def user_list(request):
 
 
 def user_add(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     form = User_Form
    
     template_name = 'user_add.html'
@@ -1190,8 +1090,7 @@ def user_add(request):
 # -------------------------------- User Edit ---------------------------------------------
 
 def user_edit(request, id):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     template_name = 'user_edit.html'
    
     
@@ -1250,8 +1149,7 @@ def user_delete(request, id):
 
 
 def download_user_template(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     user_headers = [
             'Username',
             'First Name',
@@ -1279,8 +1177,7 @@ def download_user_template(request):
 # ---------------------------- Bulk Upload User -----------------------------------------------------------------
 
 def user_bulk_upload(request):
-    if request.user.role != 'ADMIN':
-        return HttpResponseForbidden("You don't have permission to edit this data.")
+    
     if 'file' not in request.FILES:
         return HttpResponse("No file uploaded", status=400)
     
@@ -1367,6 +1264,7 @@ def export_user_details(request):
     response['Content-Disposition'] = 'attachment; filename=user_details.xlsx'
     
     return response
+# -------------------------------- Edit Profile -----------------------------------------------
 
 def edit_profile(request):
     template_name = 'profile_edit.html'

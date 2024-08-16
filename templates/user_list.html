@@ -32,23 +32,26 @@
                                   </div>
                                   <div class="ms-auto my-auto mt-lg-0 mt-4">
                                     <div class="ms-auto my-auto">
-                                      <a href="{% url 'user_add' %}">
-                                        <button type="button" class="btn btn-success">
-                                          <i class="bi bi-plus-circle me-1"></i> Add User
-                                        </button>
-                                      </a>
-                                      <a href="#bulkUploadModal" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
-                                        <button type="button" class="btn btn-success">
-                                            <i class="bi bi-upload"></i> Bulk Upload
-                                        </button>
-                                      </a>
-                                      <a href="{% url 'export_user_details' %}">
-                                        <button type="button" class="btn btn-success">
-                                          <i class="bi bi-download"></i> Export
-                                        </button>
-                                      </a>
-                                      
+                                        {% if role != 'VIEWER' %}
+                                            <!-- Only display these buttons if the role is not 'VIEWER' -->
+                                            <a href="{% url 'user_add' %}">
+                                                <button type="button" class="btn btn-success">
+                                                    <i class="bi bi-plus-circle me-1"></i> Add User
+                                                </button>
+                                            </a>
+                                            <a href="#bulkUploadModal" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
+                                                <button type="button" class="btn btn-success">
+                                                    <i class="bi bi-upload"></i> Bulk Upload
+                                                </button>
+                                            </a>
+                                        {% endif %}
+                                        <a href="{% url 'export_user_details' %}">
+                                            <button type="button" class="btn btn-success">
+                                                <i class="bi bi-download"></i> Export
+                                            </button>
+                                        </a>
                                     </div>
+                                </div>
                                   </div>
                                   </div>
                               </div>
@@ -212,6 +215,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
       <script>
+        var userRole = "{{ role }}";
+        console.log("roleeeee",userRole)
         $(document).ready(function () {
             $("#userTable").dataTable().fnDestroy();
             LoadTable();
@@ -252,23 +257,34 @@
                             var editUrl = editUrlPattern.replace('0', row.id);
                             var viewUrl = viewUrlPattern.replace('0', row.id);
                             var varButtons = "";
-                            varButtons = `
-                            <div class="d-flex">
+                            varButtons = '<div class="d-flex">';
+
+                            // Add Edit button if user is not a viewer
+                            if (userRole !== 'VIEWER') {
+                                varButtons += `
                                 <a href="${editUrl}" class="me-1">
                                     <button type="button" class="btn btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                         <i class="bi bi-pencil-fill"></i>
                                     </button>
                                 </a>&nbsp;
-                                <a href="${viewUrl}" class="me-1">
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Details">
-                                        <i class="bi bi-eye-fill"></i>
-                                    </button>
-                                </a>&nbsp;
                                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-user-id="${row.id}" title="Delete">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>&nbsp;
-                            </div>
+                                `;
+                            }
+    
+                            // Always add View button
+                            varButtons += `
+                            <a href="${viewUrl}" class="me-1">
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Details">
+                                    <i class="bi bi-eye-fill"></i>
+                                </button>
+                            </a>&nbsp;
                             `;
+    
+                            // Close the div
+                            varButtons += '</div>';
+    
                             return varButtons;
                         }
                     },
