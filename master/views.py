@@ -111,7 +111,7 @@ def department_list(request):
     })
 
 #--------------------- Add Department ----------------------------------------------------
-
+@login_required
 def department_add(request):
     
     if request.method == 'POST':
@@ -136,7 +136,7 @@ def department_add(request):
     return render(request, 'department-add.html')
     
 #---------------------------Edit Department-------------------------------------------------------------------------------#
-    
+@login_required    
 def department_edit(request,department_id):
 
     department_instance = get_object_or_404(Department, department_id=department_id)
@@ -165,7 +165,7 @@ def department_view(request,department_id):
 
 #---------------------------Delete  Department-------------------------------------------------------------------------------#
 
-
+@login_required
 def department_delete(request, department_id):
     
     department = get_object_or_404(Department, department_id=department_id)
@@ -178,7 +178,7 @@ def department_delete(request, department_id):
         return redirect('department_list')
     
 #---------------------------Download  Department Template-------------------------------------------------------------------------------#
-
+@login_required
 def download_template(request):
     
     template_path = finders.find('template/department_template.xlsx')
@@ -192,7 +192,7 @@ def download_template(request):
     
 
 #---------------------------Upload Department Details-------------------------------------------------------------------------------#
-
+@login_required
 def bulk_upload(request):
         
         # Check file type
@@ -276,7 +276,7 @@ def designation_list(request):
         return JsonResponse(des)
 
 #--------------------- Add Designation ----------------------------------------------------
-
+@login_required
 def designation_add(request):
     
     if request.method == 'POST':
@@ -303,7 +303,7 @@ def designation_add(request):
     return render(request, 'designation_add.html',{'depts':departments})
     
 #---------------------------Edit Designation-------------------------------------------------------------------------------#
-    
+@login_required   
 def designation_edit(request, designation_id):
     
     designation_instance = get_object_or_404(Designation, pk=designation_id)
@@ -342,7 +342,7 @@ def designation_view(request,designation_id):
     return render(request, 'designation_view.html',{'designation': designation_instance,'dept_name':dept_name})
 
 #---------------------------Delete  Designation-------------------------------------------------------------------------------#
-
+@login_required
 def designation_delete(request, designation_id):
     
     designation = get_object_or_404(Designation, designation_id=designation_id)
@@ -357,7 +357,7 @@ def designation_delete(request, designation_id):
 
 #---------------------------Download  Designation Template-------------------------------------------------------------------------------#
 
-
+@login_required
 def designation_download_template(request):
     
     departments = Department.objects.values_list('department_name', flat=True)
@@ -398,7 +398,7 @@ def designation_download_template(request):
 
 #---------------------------Bulk Upload Designation -------------------------------------------------------------------------------#
 
-
+@login_required
 def designation_bulk_upload(request):
      
      if request.method == 'POST':
@@ -532,7 +532,7 @@ def location_list(request):
         return JsonResponse(loc)
 
 #--------------------- Add Location ----------------------------------------------------
-
+@login_required
 def location_add(request):
     
     if request.method == 'POST':
@@ -557,7 +557,7 @@ def location_add(request):
 
 
 #---------------------------Edit Location-------------------------------------------------------------------------------#
-    
+@login_required  
 def location_edit(request,location_id):
     
     location_instance = get_object_or_404(Location, location_id=location_id)
@@ -587,7 +587,7 @@ def location_view(request,location_id):
 
 #---------------------------Delete  Location-------------------------------------------------------------------------------#
 
-
+@login_required
 def location_delete(request, location_id):
     
     location = get_object_or_404(Location, location_id=location_id)
@@ -601,7 +601,7 @@ def location_delete(request, location_id):
     download_location_template
 
 #---------------------------Download  Location Template-------------------------------------------------------------------------------#
-
+@login_required
 def download_location_template(request):
     
     template_path = finders.find('template/location_template.xlsx')
@@ -615,7 +615,7 @@ def download_location_template(request):
     
 
 #---------------------------Upload location Details-------------------------------------------------------------------------------#
-
+@login_required
 def location_bulk_upload(request):
         
         # Check file type
@@ -694,7 +694,7 @@ def employee_list(request):
     
 
 # ---------------------- Add Employee --------------------------------------
-
+@login_required
 def employee_add(request):
     
     form = EmployeeForm
@@ -728,7 +728,7 @@ def employee_add(request):
     
 # ---------------------- Edit Employee --------------------------------------
 
-
+@login_required
 def employee_edit(request,employee_id):
     
     template_name = 'employee_edit.html'
@@ -763,7 +763,7 @@ def employee_edit(request,employee_id):
     return render(request, template_name, context)
 
 # ---------------------- View Employee --------------------------------------
-
+@login_required
 def employee_view(request,employee_id):
 
     employee = get_object_or_404(Employee,employee_id=employee_id)
@@ -784,7 +784,7 @@ def employee_view(request,employee_id):
 
 
 #---------------------------Delete  Employee-------------------------------------------------------------------------------#
-
+@login_required
 def employee_delete(request, employee_id):
     
     employee = get_object_or_404(Employee, employee_id=employee_id)
@@ -797,7 +797,7 @@ def employee_delete(request, employee_id):
         return redirect('employee_list')
     
 #---------------------------Export Employee Details-------------------------------------------------------------------------------#
-
+@login_required
 def export_employee(request):
     employee = Employee.objects.all()
     data = []
@@ -838,7 +838,7 @@ def export_employee(request):
 
 #---------------------------Download  Employee Template-------------------------------------------------------------------------------#
 
-
+@login_required
 def download_employee_template(request):
     
      # Define the headings for the Employee template
@@ -882,7 +882,7 @@ def download_employee_template(request):
 
 #---------------------------Upload Employee Details-------------------------------------------------------------------------------#
 
-
+@login_required
 def bulk_upload_employees(request):
     
     if 'file' not in request.FILES:
@@ -905,22 +905,23 @@ def bulk_upload_employees(request):
         locations = {loc.location_name: loc for loc in Location.objects.all()}
         # Iterate over employee data
         for index, row in df_employees.iterrows():
+            print(f"Processing row {index}: {row}")  # Debugging
             # Handle missing or incorrect data types
             department = departments.get(row['Department'])
             designation = designations.get(row['Designation'])
             location = locations.get(row['Location'])
-            created_at = datetime.now()
+            created_at = timezone.now()
             created_by = request.user
             
             if department and designation and location:
-                created_at = datetime.now()
+                created_at = timezone.now()
                 created_by = request.user
                 try:
                     # Convert photo to None if it's NaN
                     photo = row['Photo'] if pd.notna(row['Photo']) else None
                     
                     # Create or update employee
-                    employee, created = Employee.objects.update_or_create(
+                    employee, created = Employee.objects.update_or_create(      
                         employee_no=row['Employee No'],
                         defaults={
                             'join_date': pd.to_datetime(row['Join Date'], errors='coerce'),
@@ -934,11 +935,11 @@ def bulk_upload_employees(request):
                             'department': department,
                             'designation': designation,
                             'location': location,
-                            'created_at' : created_at.now(),  
+                            'created_at' : created_at,  
                             'created_by' : created_by 
                         }
                     )
-                    
+                    print(f"Employee {'created' if created else 'updated'}: {employee}")
                     # Now handle skills associated with this employee
                     skills_for_employee = df_skills[df_skills['Employee Number'] == row['Employee No']]
                     
@@ -1190,7 +1191,7 @@ def user_list(request):
 
 #------------------------------------ User Add --------------------------------------------------------------------
 
-
+@login_required
 def user_add(request):
     
     form = User_Form
@@ -1219,7 +1220,7 @@ def user_add(request):
         return render(request, template_name, context)
     
 # -------------------------------- User Edit ---------------------------------------------
-
+@login_required
 def user_edit(request, id):
     
     template_name = 'user_edit.html'
@@ -1250,7 +1251,7 @@ def user_edit(request, id):
     
 
 #------------------------------------ View User ---------------------------------------------------
-
+@login_required
 def user_view(request,id):
 
     user = get_object_or_404(User,id=id)
@@ -1263,7 +1264,7 @@ def user_view(request,id):
 
    
 # --------------------------------- Delete User --------------------------------------------------------
-
+@login_required
 def user_delete(request, id):
     
     user = User.objects.get(id=id)
@@ -1275,7 +1276,7 @@ def user_delete(request, id):
    
 # -------------------------- Download Template ----------------------------------------------------------
 
-
+@login_required
 def download_user_template(request):
     
     user_headers = [
@@ -1303,7 +1304,7 @@ def download_user_template(request):
 
 
 # ---------------------------- Bulk Upload User -----------------------------------------------------------------
-
+@login_required
 def user_bulk_upload(request):
     
     if 'file' not in request.FILES:
@@ -1367,7 +1368,7 @@ def user_bulk_upload(request):
     
 # -------------------------------- Export Users -----------------------------------------------
 
-
+@login_required
 def export_user_details(request):
     # Fetch user data from the database
     users = User.objects.all().values(
@@ -1393,7 +1394,7 @@ def export_user_details(request):
     
     return response
 # -------------------------------- Edit Profile -----------------------------------------------
-
+@login_required
 def edit_profile(request):
     template_name = 'profile_edit.html'
     user_id =request.user.id
